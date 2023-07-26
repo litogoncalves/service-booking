@@ -1,3 +1,8 @@
+
+/**************************/
+/* HEADER SECTION */
+/**************************/
+
 header nav a:any-link {
   text-decoration: none;
   padding: 0 var(--lumo-space-s);
@@ -23,4 +28,205 @@ header nav a[highlight] span {
 
 header nav a[highlight] {
   background-color: var(--lumo-primary-color-10pct);
+}
+
+.header-app-name {
+	color: var(--lumo-primary-color);
+	font-size: 1.2rem;
+	font-weight: 500;
+}
+
+.user-div {
+	color: var(--lumo-primary-color);
+}
+
+.btn-nav-link:link,
+.btn-nav-link:visited {
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  text-decoration: none;
+  transition: all 0.3s;
+  margin-right: 0.2rem;
+}
+
+.btn-nav-link.nav-cta:link,
+.btn-nav-link.nav-cta:visited {
+  padding: 0.2rem 1rem;
+  border-radius: 9px;
+  color: #fff;
+  background-color: var(--lumo-primary-color);
+}
+.btn-nav-link.nav-cta:hover,
+.btn-nav-link.nav-cta:active {
+  background-color: #12263A;
+  
+}
+
+.login-nav-link:link,
+.login-nav-link:visited {
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--lumo-primary-color);
+  text-decoration: none;
+  transition: all 0.3s;
+  padding: 0.2rem 1rem;
+}
+
+
+.login-nav-link.nav-cta:hover,
+.login-nav-link.nav-cta:active {
+  padding: 0.2rem 1rem;
+  border-radius: 9px;
+  background-color: #CBCBCB;
+}
+
+.header2{
+	margin-bottom: 2px; 
+}
+
+/**************************/
+/* BODY SECTION */
+/**************************/
+
+.section-home {
+  background-color: #fdf2e9;
+  padding: 4.8rem 0 9.6rem 0;
+}
+
+/**************************/
+/* AGENDAR SERVICO SECTION */
+/**************************/
+
+.div-buttons{
+	background-color: rgba(23, 137, 252, 0.2);
+	border-radius: 50px;
+}
+
+.service-buttons{
+	background-color: rgba(23, 137, 252, 0.8);
+	box-shadow: 0 4px 4px rgba(23, 137, 252, 0.4);
+	border-radius: 50px;
+	align-self: end;
+	text-transform: uppercase;
+}
+
+.service-buttons:hover{
+ background-color: var(--lumo-primary-color);
+ box-shadow: 0 8px 5px rgba(23, 137, 252, 0.4);
+}
+
+.service-btn-active {
+	background-color: var(--lumo-primary-color);
+}
+
+.btn--form:hover {
+  background-color: var(--lumo-primary-color);
+  
+}
+
+.header-form {
+	background-color: var(--lumo-primary-color);
+}
+
+.card {
+    /*border: 1px solid rgba(203, 203, 203, 1);*/
+    border-radius: 5px;
+    padding: 1.2em;
+    background-color: rgba(203, 203, 203, 0.05);
+    box-shadow: 0 4px 6px rgba(102, 113, 123, 0.3);
+}
+
+.header-radius{
+	border-radius: 5px;
+}
+
+.card-forms {
+    /*border: 1px solid rgba(203, 203, 203, 1);*/
+    border-radius: 5px;
+    padding: 1.2em;
+    background-color: rgba(203, 203, 203, 0.05);
+    box-shadow: 0 4px 6px rgba(102, 113, 123, 0.3);
+}
+
+.search-place {
+	padding: 2.2rem 0 3.2rem 0;
+	border-radius: 10px;
+	background-color: rgb(247, 249, 249);
+	/*background-image: linear-gradient(to right, rgba(247, 249, 249, 1), rgba(79, 86, 92, 0.9));*/
+}
+.v-label-undef-w {
+  color: white;
+  text-align: left;
+}
+/**************************/
+/* FOOTER SECTION */
+/**************************/
+
+.footer {
+  padding: 4.8rem;
+  border-top: 1px solid #eee;
+  background-color: var(--lumo-contrast-5pct);
+  /*background-color: rgba(238, 238, 238, 0.45);*/
+}
+.grid-footer {
+  grid-template-columns: 1.5fr 1.5fr 1fr 1fr 1fr;
+}
+.logo-col {
+  display: flex;
+  flex-direction: column;
+}
+.footer-logo {
+  display: block;
+  margin-bottom: 1.7rem;
+}
+.social-links {
+  list-style: none;
+  display: flex;
+  gap: 1.2rem;
+}
+.social-icon {
+  height: 1.2rem;
+  width: 1.2rem;
+}
+.copyright {
+  font-size: 0.8rem;
+  line-height: 1.2;
+  color: #767676;
+  margin-top: auto;
+}
+.contacts {
+  font-style: normal;
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+.address {
+  margin-bottom: 1.2rem;
+}
+.footer-heading {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+}
+
+.footer-nav {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.footer-link:link,
+.footer-link:visited {
+  text-decoration: none;
+  font-size: 1.2rem;
+  color: #767676;
+  transition: all 0.3s;
+}
+
+.footer-link.meal:hover,
+.footer-link:active {
+  color: #555;
 }

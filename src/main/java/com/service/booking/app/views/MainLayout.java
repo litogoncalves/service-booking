@@ -5,7 +5,6 @@ import com.service.booking.app.security.AuthenticatedUser;
 import com.service.booking.app.views.agendamentos.AgendamentosView;
 import com.service.booking.app.views.atendimento.AtendimentoView;
 import com.service.booking.app.views.home.HomeView;
-import com.service.booking.app.views.sobre.SobreView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -14,6 +13,7 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Header;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Nav;
 import com.vaadin.flow.component.html.Span;
@@ -96,9 +96,17 @@ public class MainLayout extends AppLayout {
         Div layout = new Div();
         layout.addClassNames(Display.FLEX, AlignItems.CENTER, Padding.Horizontal.LARGE);
 
-        H1 appName = new H1("Service Booking");
-        appName.addClassNames(Margin.Vertical.MEDIUM, Margin.End.AUTO, FontSize.LARGE);
-        layout.add(appName);
+        Image imgLogo1 = new Image("icons/icon.png", "Service Booking Icon Logo");
+        imgLogo1.setWidth("40px");
+        imgLogo1.getStyle().set("border-radius", "60%");
+        
+        H1 appName = new H1("SIGAV");
+        
+        imgLogo1.addClassNames(Margin.Vertical.MEDIUM, Margin.End.SMALL, FontSize.LARGE);
+        imgLogo1.addClassNames(Margin.Vertical.MEDIUM, Margin.End.SMALL, FontSize.LARGE);
+        appName.addClassNames(Margin.Vertical.MEDIUM, Margin.End.AUTO, FontSize.LARGE, "header-app-name");
+        
+        layout.add(imgLogo1,appName);
 
         Optional<User> maybeUser = authenticatedUser.get();
         if (maybeUser.isPresent()) {
@@ -122,15 +130,19 @@ public class MainLayout extends AppLayout {
             div.getElement().getStyle().set("display", "flex");
             div.getElement().getStyle().set("align-items", "center");
             div.getElement().getStyle().set("gap", "var(--lumo-space-s)");
+            div.setClassName("user-div");
             userName.add(div);
             userName.getSubMenu().addItem("Sign out", e -> {
                 authenticatedUser.logout();
-            });
-
+            }).addClassName("user-div");
+            
             layout.add(userMenu);
         } else {
-            Anchor loginLink = new Anchor("login", "Sign in");
-            layout.add(loginLink);
+        	Anchor bookingLink = new Anchor("agendar", "AGENDAR SERVIÇO");
+        	bookingLink.addClassNames("btn-nav-link", "nav-cta");
+            Anchor loginLink = new Anchor("login", "SIGN IN");
+            loginLink.addClassNames("login-nav-link", "nav-cta");
+            layout.add(bookingLink, loginLink);
         }
 
         Nav nav = new Nav();
@@ -154,13 +166,11 @@ public class MainLayout extends AppLayout {
 
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{ //
-                new MenuItemInfo("Home", LineAwesomeIcon.FILE.create(), HomeView.class), //
+                new MenuItemInfo("Home", LineAwesomeIcon.HOME_SOLID.create(), HomeView.class), //
 
-                new MenuItemInfo("Agendamentos", null, AgendamentosView.class), //
+                new MenuItemInfo("Agendamentos", LineAwesomeIcon.CALENDAR_DAY_SOLID.create(), AgendamentosView.class), //
 
-                new MenuItemInfo("Atendimento", null, AtendimentoView.class), //
-
-                new MenuItemInfo("Sobre", null, SobreView.class), //
+                new MenuItemInfo("Atendimento", LineAwesomeIcon.LAPTOP_SOLID.create(), AtendimentoView.class), //
 
         };
     }

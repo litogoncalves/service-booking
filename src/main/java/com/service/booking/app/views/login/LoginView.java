@@ -12,7 +12,7 @@ import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @AnonymousAllowed
-@PageTitle("Login")
+@PageTitle("Login | Service Bookings - Sistema de Gestão de Agendamentos e Validações")
 @Route(value = "login")
 public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 

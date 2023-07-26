@@ -25,7 +25,7 @@ public class Application implements AppShellConfigurator {
         SpringApplication.run(Application.class, args);
     }
 
-    @Bean
+   @Bean
     SqlDataSourceScriptDatabaseInitializer dataSourceScriptDatabaseInitializer(DataSource dataSource,
             SqlInitializationProperties properties, SamplePersonRepository repository) {
         // This bean ensures the database is only initialized when empty

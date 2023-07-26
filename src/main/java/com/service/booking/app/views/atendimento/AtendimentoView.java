@@ -10,7 +10,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 import jakarta.annotation.security.RolesAllowed;
 
-@PageTitle("Atendimento")
+@PageTitle("Atendimento | Service Bookings - Sistema de Gestão de Agendamentos e Validações")
 @Route(value = "atendimento", layout = MainLayout.class)
 @RolesAllowed("USER")
 public class AtendimentoView extends VerticalLayout {
