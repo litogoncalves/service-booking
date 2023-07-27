@@ -134,13 +134,18 @@ public class Labels {
 	public static final String PHONE_OR_EMAIL = "Telemóvel ou E-mail";
 	public static final String PHONE_OR_EMAIL_PLACEHOLDER = "Forneça o seu nº de telemóvel ou e-mail se preferir";
 	
-	//Confirm DIalog
+	//Confirm Dialog
 	public static final String CANCEL_BOOKING = "Anular Agendamento";
 	public static final String CANCEL_BOOKING_CONFIRM_TEXT = "Tem certeza que deseja anular o agendamento com o código #?";
-	public static final String BOOKING_CONFIRMATION = "O seu agendamento foi criado com sucesso. Confirme os dados a baixo:";
+	public static final String BOOKING_CONFIRMATION = "Confirme a baixo os dados do seu agendamento para tratar o documento ";
 	public static final String CONFIRM_BOOKING = "Confirmação do Agendamento";
+	public static final String CONFIRM_BOOKING_CANCELLATION = "Anular Agendamento";
 	
 	//Buttons
 	public static final String CONFIRM_BOOKING_BUTTON = "Confirmar";
 	public static final String CONFIRM_BOOKING_LATER_BUTTON = "Confirmar mais tarde";
+	public static final String VIEW_BOOKING_HISTORY_BUTTON = "Ver Histórico";
+	public static final String CANCEL_BOOKING_BUTTON = "Anular";
+	public static final String RESCHEDULE_BOOKING_BUTTON = "Reagendar";
+	
 }

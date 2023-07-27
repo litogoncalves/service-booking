@@ -50,6 +50,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -66,6 +67,8 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H5;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.html.H6;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -201,9 +204,9 @@ public class PassaportA11View extends VerticalLayout {
 	private Component createHeader() {
 		headerDiv = new Div();
 		header = new H4(Labels.DOCUMENT_TYPE_PASSPORT_A11);
-		header.getStyle().set("color", "#4F565C");
+		header.getStyle().set("color", "#fff");
 		headerDiv.getStyle().set("text-transform", "uppercase");
-		headerDiv.getStyle().set("background-color", "rgba(23, 137, 252, 0.3)");
+		headerDiv.addClassName("formTitle"); //.getStyle().set("background-color", "rgba(23, 137, 252, 0.3)");
 		headerDiv.setWidth("100%");
 		headerDiv.addClassNames(Padding.Vertical.SMALL, "header-radius");
 		headerDiv.add(header);
@@ -541,23 +544,34 @@ public class PassaportA11View extends VerticalLayout {
 	 
 	 private void createConfirmDialog() {
 		 try {
-			 saveBooking();
+			 
 			 
 			 confirmDialog = new ConfirmDialog();
 			 confirmDialog.setCancelable(true);
-			 confirmDialog.setCancelText(Labels.NO);
-			 confirmDialog.setCancelButtonTheme("error tertiary");
+			 confirmDialog.setCancelText(Constants.CANCEL);
+			 confirmDialog.setCancelButtonTheme("error primary");
 			 confirmDialog.setConfirmText(Labels.CONFIRM_BOOKING_LATER_BUTTON);
-			 confirmDialog.setConfirmButton(Labels.CONFIRM_BOOKING_BUTTON, e -> {});
+			 confirmDialog.setConfirmButton(Labels.CONFIRM_BOOKING_BUTTON, e -> saveBooking());
 	         
-			 confirmDialog.setHeader(Labels.BOOKING_CONFIRMATION);
-			 confirmDialog.add(new H5(Labels.DOCUMENT_TYPE_PASSPORT_A11), new Paragraph());
-			 confirmDialog.add(new H6(Labels.BOOKING_CONFIRMATION));
-			 confirmDialog.add(new Paragraph("Nome: "+booking.getNameReq()+" "+booking.getSurnameReq()));
-			 confirmDialog.add(new Paragraph("Data Marcada: "+booking.getDateToScheduleFormated()));
-			 confirmDialog.add(new Paragraph("Local Selecionado Para Tratar o Documento: "+booking.getLocation().getName()));
-			 confirmDialog.add(new Paragraph("Tipo de Documento: "+booking.getDocumentType().getName()));
-	             //dialog.add(new H4("Data Marcada: "+grid.sel));
+			 confirmDialog.setHeader(Labels.CONFIRM_BOOKING);
+			 //confirmDialog.add(new H4(Labels.BOOKING_CONFIRMATION), new Paragraph());
+			 confirmDialog.add(new H5(Labels.BOOKING_CONFIRMATION+" "+Labels.DOCUMENT_TYPE_PASSPORT_A11));
+			 
+			 UnorderedList unorderedList = new UnorderedList();
+
+		        // Create and add list items to the UnorderedList
+		        ListItem item1 = new ListItem(Labels.NAME+": "+nameReq.getValue()+" "+surnameReq.getValue());
+		        ListItem item2 = new ListItem(Labels.DOCUMENT_TYPE+": "+documentType.getValue().getName());
+		        ListItem item3 = new ListItem(Labels.SCHEDULED_DATE+": "+dateToSchedule.getValue());
+		        ListItem item4 = new ListItem(Labels.SELECTED_LOCATION+": "+location.getValue().getName());
+		        
+		        unorderedList.add(item1, item2, item3, item4);
+		        confirmDialog.add(unorderedList);
+			/* confirmDialog.add(new Paragraph("Nome: "+nameReq.getValue()+" "+surnameReq.getValue()));
+			 confirmDialog.add(new Paragraph("Tipo de Documento: "+documentType.getValue().getName()));
+			 confirmDialog.add(new Paragraph("Data Marcada: "+dateToSchedule.getValue()));
+			 confirmDialog.add(new Paragraph("Local: "+location.getValue().getName()));*/
+			 
 			 confirmDialog.setConfirmButtonTheme("success primary");
 	             
 	             //dialog.addConfirmListener(event -> navigateToView("/passaportA11"));

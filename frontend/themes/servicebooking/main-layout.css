@@ -161,6 +161,12 @@ header nav a[highlight] {
   color: white;
   text-align: left;
 }
+
+
+.formTitle {
+	background-color: var(--lumo-primary-color);
+	color: #fff;
+}
 /**************************/
 /* FOOTER SECTION */
 /**************************/

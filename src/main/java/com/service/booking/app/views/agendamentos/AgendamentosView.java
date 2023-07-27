@@ -2,17 +2,22 @@ package com.service.booking.app.views.agendamentos;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.service.booking.app.constants.Constants;
 import com.service.booking.app.constants.Labels;
 import com.service.booking.app.data.entity.Booking;
+import com.service.booking.app.data.entity.BookingLogs;
 import com.service.booking.app.data.entity.District;
 import com.service.booking.app.data.entity.Document;
 import com.service.booking.app.data.entity.Province;
+import com.service.booking.app.data.service.BookingLogsService;
 import com.service.booking.app.data.service.BookingService;
 import com.service.booking.app.data.service.StatusService;
+import com.service.booking.app.utils.BookingUtils;
 import com.service.booking.app.data.entity.Status;
 import com.service.booking.app.views.MainLayout;
+import com.service.booking.app.utils.BookingUtils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.applayout.AppLayout.Section;
@@ -71,6 +76,7 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
 	private Paragraph subtitle;
 	
 	private final BookingService bookingService;
+	private final BookingLogsService bookingLogsService;
 	private final StatusService statusService;
 	
 	private List<Booking> bookings;
@@ -92,16 +98,18 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
 	private FormLayout formLayout;
 	
 	private Button submitButton;
-	private Button confirmBtn;
+	private Button viewHistoryBtn;
 	private Button cancelBtn;
 	private Button rescheduleBtn;
 	
-    public AgendamentosView(BookingService bookingService, StatusService statusService) {
+    public AgendamentosView(BookingService bookingService, StatusService statusService, BookingLogsService bookingLogsService) {
     	
 		setAlignItems(Alignment.CENTER);
 		
 		this.bookingService = bookingService;
 		this.statusService = statusService;
+		this.bookingLogsService = bookingLogsService;
+		
         createVariables();
         createSearchOptions();
         add(createHeader());
@@ -332,7 +340,7 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
     	grid.setVisible(true);
         grid.setItems(bookings);
         
-        confirmBtn.setVisible(true);
+        viewHistoryBtn.setVisible(true);
         cancelBtn.setVisible(true);
         rescheduleBtn.setVisible(true);
         
@@ -344,7 +352,7 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
             dialogCancel.setConfirmText(Labels.YES);
             dialogCancel.setConfirmButton(Labels.YES, e -> cancelBooking());
             
-            dialogCancel.setHeader(Labels.CONFIRM_BOOKING);
+            dialogCancel.setHeader(Labels.CONFIRM_BOOKING_CANCELLATION);
             dialogCancel.add(new H5(Labels.DOCUMENT_TYPE_PASSPORT_A11), new Paragraph());
             dialogCancel.add(new H4(Labels.CANCEL_BOOKING_CONFIRM_TEXT.replace("#", bookings.get(0).getBookingId())
             		));
@@ -359,13 +367,10 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
         	dialogCancel.open();
         });
         //createCancelBookingConfirmDialog();
-        if(bookings.get(0).getStatus().getCode().equals(Constants.STATUS_APROVEDAPPROVED_FOR_CAPTURE_CODE)) {
-        	confirmBtn.setEnabled(false);
-        }else
-        	if(bookings.get(0).getStatus().getCode().equals(Constants.STATUS_BOOKING_CANCELED_CODE)) {
-        		confirmBtn.setEnabled(false);
-                cancelBtn.setEnabled(false);
-        	}
+        if(bookings.get(0).getStatus().getCode().equals(Constants.STATUS_BOOKING_CANCELED_CODE)) {
+    		cancelBtn.setEnabled(false);
+    	}
+        	
         
     }
     
@@ -384,47 +389,66 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
     
     private Component createToolbar() {
     	buttonsDiv = new Div();
-		confirmBtn = new Button("Confirmar");
-		confirmBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
-		confirmBtn.setIcon(VaadinIcon.CHECK_CIRCLE.create());
-		confirmBtn.setVisible(false);
+		viewHistoryBtn = new Button(Labels.VIEW_BOOKING_HISTORY_BUTTON);
+		viewHistoryBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+		viewHistoryBtn.setIcon(VaadinIcon.LIST.create());
+		viewHistoryBtn.setVisible(false);
 		
-		cancelBtn = new Button("Anular");
+		cancelBtn = new Button(Labels.CANCEL_BOOKING_BUTTON);
 		cancelBtn.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_PRIMARY);
 		cancelBtn.setIcon(VaadinIcon.FILE_REMOVE.create());
 		cancelBtn.setVisible(false);
 		
-		rescheduleBtn = new Button("Reagendar");
+		rescheduleBtn = new Button(Labels.RESCHEDULE_BOOKING_BUTTON);
 		rescheduleBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		rescheduleBtn.setIcon(VaadinIcon.CALENDAR_CLOCK.create());
 		rescheduleBtn.setVisible(false);
 		
-		confirmBtn.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("/add-student")));
+		//viewHistoryBtn.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("/add-student")));
 		//cancelBtn.addClickListener(e -> createCancelBookingConfirmDialog());
         
-		buttonsHorizontalLayout.add(confirmBtn, cancelBtn, rescheduleBtn);
+		buttonsHorizontalLayout.add(cancelBtn, rescheduleBtn, viewHistoryBtn);
 		
 		return buttonsHorizontalLayout;
 	}
     
     public void cancelBooking() {
-        Booking booking = bookings.get(0);
-        Status status = statusService.getStatusByCode(Constants.STATUS_BOOKING_CANCELED_CODE);
-        System.out.println("STATUS -> "+status);
-        if(status != null) {
-        	booking.setStatus(status);
-        	bookingService.save(booking);
-        	bookings.get(0).setStatus(status);
-        	updateGrid();
+    	try {
 
-    		Notification notification = Notification.show(Labels.CANCELED_BOOKING_SUCCESSFULLY.replace("#", booking.getBookingId()), 10000, Position.TOP_CENTER); 
-			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-			
-			dialogCancel.close();
-        }else {
+            Booking booking = bookings.get(0);
+            Status status = statusService.getStatusByCode(Constants.STATUS_BOOKING_CANCELED_CODE);
+            
+            if(status != null) {
+
+            	BookingLogs bookingLogs = BookingUtils.setBookingLogsValues(booking);
+            	booking.setStatus(status);
+            	booking.setCancelledBy(booking.getNameReq()+" "+booking.getSurnameReq());
+            	booking.setCancelledDate(new Date());
+            	booking.setLastUpdateBy(booking.getNameReq()+" "+booking.getSurnameReq());
+            	booking.setLastUpdateDate(new Date());
+            	booking.setVersion(2);
+            	
+            	bookingService.save(booking);
+            	bookings.get(0).setStatus(status);
+            	
+            	bookingLogsService.save(bookingLogs);
+            	
+            	updateGrid();
+
+        		Notification notification = Notification.show(Labels.CANCELED_BOOKING_SUCCESSFULLY.replace("#", booking.getBookingId()), 10000, Position.TOP_CENTER); 
+    			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+    			
+    			dialogCancel.close();
+            }else {
+        		Notification notification = Notification.show(Labels.CANCEL_BOOKING_FAILED, 10000, Position.TOP_CENTER); 
+    			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            }
+    	}catch(Exception e) {
+    		System.out.println(e);
+    		
     		Notification notification = Notification.show(Labels.CANCEL_BOOKING_FAILED, 10000, Position.TOP_CENTER); 
 			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        }
+    	}
     }
     
     public static String firstCharToUppercase(String input) {
