@@ -20,6 +20,14 @@ public class BookingServiceImpl implements BookingService{
 	public void save(Booking booking) {
 		booking.setCreatedDate(new Date());
 		booking.setVersion(1);
+		if(booking.getCityAddress() == null)
+			booking.setCityAddress("N/A");
+		
+		if(booking.getStreetAddress() == null)
+			booking.setStreetAddress("N/A");
+
+		if(booking.getHotelReservation() == null)
+			booking.setHotelReservation("N/A");
 		
 		repository.save(booking);
 	}

@@ -273,8 +273,8 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
     	}else {
     		if(searchFor.getValue().equals(Labels.BOOKING_ID)) {
     			bookings = bookingService.findBookingByIdAndSurnameAndContact(searchCode.getValue(), surname.getValue(), phoneOrEmail.getValue());
-    			System.out.println("BOOKINGS: "+bookings);
-        		if(bookings != null && bookings.size() > 0) {
+    			
+    			if(bookings != null && bookings.size() > 0) {
         			updateGrid();
         			 // Execute JavaScript code to scroll to the section with the given id
                     getElement().executeJs("document.getElementById('booking_grid').scrollIntoView();");
@@ -322,7 +322,7 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
         //grid.getElement().getStyle().set("overflow-x", "auto");
         grid.setColumns();
 
-		grid.addColumn(b -> b.getService().getName()).setHeader(Labels.DOCUMENT_TYPE).setAutoWidth(true).setFlexGrow(0).setSortable(true);
+		grid.addColumn(b -> b.getService().getName()).setHeader(Labels.DOCUMENT_TYPE).setAutoWidth(true).setFlexGrow(0).setSortable(true).setFrozen(true);
         grid.addColumn(Booking::getNameReq).setHeader(Labels.FULLNAME).setAutoWidth(true);
         grid.addColumn(Booking::getSurnameReq).setHeader(Labels.SURNAME).setAutoWidth(true);
 		grid.addColumn(Booking::getDateToScheduleFormated).setHeader(Labels.SCHEDULED_DATE).setAutoWidth(true).setFlexGrow(0).setSortable(true);
@@ -353,14 +353,10 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
             dialogCancel.setConfirmButton(Labels.YES, e -> cancelBooking());
             
             dialogCancel.setHeader(Labels.CONFIRM_BOOKING_CANCELLATION);
-            dialogCancel.add(new H5(Labels.DOCUMENT_TYPE_PASSPORT_A11), new Paragraph());
+            dialogCancel.add(new H5(bookings.get(0).getService().getName()), new Paragraph());
             dialogCancel.add(new H4(Labels.CANCEL_BOOKING_CONFIRM_TEXT.replace("#", bookings.get(0).getBookingId())
             		));
-                //dialog.add(new H4("Data Marcada: "+grid.sel));
             dialogCancel.setConfirmButtonTheme("success primary");
-                
-                //dialog.addConfirmListener(event -> navigateToView("/passaportA11"));
-                //button = new Button("Anular");
            
             dialogCancel.setWidth("50%");
            
@@ -404,9 +400,6 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
 		rescheduleBtn.setIcon(VaadinIcon.CALENDAR_CLOCK.create());
 		rescheduleBtn.setVisible(false);
 		
-		//viewHistoryBtn.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("/add-student")));
-		//cancelBtn.addClickListener(e -> createCancelBookingConfirmDialog());
-        
 		buttonsHorizontalLayout.add(cancelBtn, rescheduleBtn, viewHistoryBtn);
 		
 		return buttonsHorizontalLayout;

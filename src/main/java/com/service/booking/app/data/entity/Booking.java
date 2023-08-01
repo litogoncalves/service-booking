@@ -56,6 +56,9 @@ public class Booking {
 	@ManyToOne
 	@JoinColumn(name = "identity_doc_id", nullable = false)
 	private IdentityDocument identityDoc;
+	@ManyToOne
+	@JoinColumn(name = "passport_id")
+	private Passport passport;
 	@Column(name = "name_req", length = 150, nullable = false)
 	@NotEmpty(message = Labels.REQUIRED_FIELD)
 	private String nameReq;
@@ -83,8 +86,17 @@ public class Booking {
 	@JoinColumn(name = "district_address_id")
 	@NotNull(message = Labels.REQUIRED_FIELD)
 	private District districtAddress;
+	@Column(name = "city_address")
+	@NotEmpty(message = Labels.REQUIRED_FIELD)
+	private String cityAddress;
 	@Column(name = "neighborhood_req", length = 140)
 	private String neighborhoodReq;
+	@Column(name = "street_address")
+	@NotEmpty(message = Labels.REQUIRED_FIELD)
+	private String streetAddress;
+	@Column(name = "hotel_reservation")
+	@NotEmpty(message = Labels.REQUIRED_FIELD)
+	private String hotelReservation;
 	@Column(name = "reason_for_travel", length = 140)
 	@NotEmpty(message = Labels.REQUIRED_FIELD)
 	private String reasonForTravel;
@@ -100,6 +112,42 @@ public class Booking {
 	@Column(name ="phone_number_req", length = 20, nullable = true)
 	@NotNull(message = Labels.REQUIRED_FIELD)
 	private String phoneNumberReq;
+	@Column(name = "single_name")
+	private String singleName;
+	@ManyToOne
+	@JoinColumn(name ="gender_id")
+	@NotNull(message = Labels.REQUIRED_FIELD)
+	private GeneralData gender;
+	@ManyToOne
+	@JoinColumn(name ="marital_status_id")
+	@NotNull(message = Labels.REQUIRED_FIELD)
+	private GeneralData maritalStatus;
+	@Column(length = 150)
+	@NotEmpty(message = Labels.REQUIRED_FIELD)
+	private String professionReq;
+	@Column(length = 150)
+	@NotEmpty(message = Labels.REQUIRED_FIELD)
+	private String positionReq;
+	@Column(length = 150)
+	@NotEmpty(message = Labels.REQUIRED_FIELD)
+	private String companyReq;
+	@Column(name = "have_ever_been_to_moz")
+	private boolean haveEverBeenToMoz;
+	@Column(name = "have_been_resident_moz")
+	private boolean haveBeenResidentMoz;
+	@Column(name = "reason_for_leaving_moz")
+	private String reasonForLeavingMoz;
+	@Column(nullable = true, name="departure_date")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
+	private Date departureDate;
+	@Column(name = "companies_worked_for")
+	private String companiesWorkedFor;
+	@ManyToOne
+	@JoinColumn(name = "length_of_stay_moz_id")
+	private GeneralData lengthOfStayMoz;
+	@Column(nullable = true, name="resident_departure_date")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
+	private Date residentDepartureDate;
 	@Column(length = 50, nullable = false)
 	private String createdBy;
 	@Column(nullable = false)
@@ -113,7 +161,6 @@ public class Booking {
 	@Column(length = 50, nullable = true)
 	private String lastUpdateBy;
 	@Column(nullable = true)
-	//@CreationTimestamp
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
 	private Date cancelledDate;
 	@Column(length = 150, nullable = true)
@@ -125,6 +172,9 @@ public class Booking {
 	private String idNumber;
 	@Transient
 	//@NotNull(message = Labels.REQUIRED_FIELD)
+	private Date idIssue;
+	@Transient
+	//@NotNull(message = Labels.REQUIRED_FIELD)
 	private Date idValidate;
 	@Transient
 	private String viatlicioRadioGroup;
@@ -133,30 +183,38 @@ public class Booking {
 	private String localOfIssue;
 	@Transient
 	private String isIDDocLifetime;
+	@Transient
+	private Nationality passportNationality;
 	
 	public Booking() {
 	}
-
+	
 	public Booking(Service service, @NotNull(message = "Campo obrigatório") ServiceFee serviceFee,
 			@NotNull(message = "Campo obrigatório") Modality modality, Status status,
 			@NotNull(message = "Campo obrigatório") Date dateToSchedule,
 			@NotNull(message = "Campo obrigatório") Location location,
-			@NotNull(message = "Campo obrigatório") Document documentType,
-			@NotEmpty(message = "Campo obrigatório") IdentityDocument identityDoc,
-			@NotEmpty(message = "Campo obrigatório") String nameReq,
+			@NotNull(message = "Campo obrigatório") Document documentType, IdentityDocument identityDoc,
+			Passport passport, @NotEmpty(message = "Campo obrigatório") String nameReq,
 			@NotEmpty(message = "Campo obrigatório") String surnameReq,
 			@NotNull(message = "Campo obrigatório") Date birthdateReq,
 			@NotNull(message = "Campo obrigatório") Country countryOfBirthReq,
 			@NotNull(message = "Campo obrigatório") Nationality nationality,
 			@NotNull(message = "Campo obrigatório") Province provinceAddress,
-			@NotNull(message = "Campo obrigatório") District districtAddress, String neighborhoodReq,
-			@NotEmpty(message = "Campo obrigatório") String reasonForTravel, String note, String emailReq,
+			@NotNull(message = "Campo obrigatório") District districtAddress, String cityAddress, String neighborhoodReq, 
+			String streetAddress, String hotelReservation,
+			@NotEmpty(message = "Campo obrigatório") String reasonForTravel, String note, @Email String emailReq,
 			@NotNull(message = "Campo obrigatório") CountryCode countryCode,
-			@NotNull(message = "Campo obrigatório") String phoneNumberReq, String createdBy, Date createdDate,
-			Date lastUpdateDate, String lastUpdateBy, Date cancelledDate, String cancelledBy, int version,
-			@NotEmpty(message = "Campo obrigatório") String idNumber,
-			@NotNull(message = "Campo obrigatório") Date idValidate, String viatlicioRadioGroup,
-			@NotEmpty(message = "Campo obrigatório") String localOfIssue) {
+			@NotNull(message = "Campo obrigatório") String phoneNumberReq, String singleName,
+			@NotNull(message = "Campo obrigatório") GeneralData gender,
+			@NotNull(message = "Campo obrigatório") GeneralData maritalStatus,
+			@NotEmpty(message = "Campo obrigatório") String professionReq,
+			@NotEmpty(message = "Campo obrigatório") String positionReq,
+			@NotEmpty(message = "Campo obrigatório") String companyReq, boolean haveEverBeenToMoz,
+			boolean haveBeenResidentMoz, String reasonForLeavingMoz, Date departureDate, String companiesWorkedFor,
+			GeneralData lengthOfStayMoz, Date residentDepartureDate, String createdBy, Date createdDate, Date lastUpdateDate,
+			String lastUpdateBy, Date cancelledDate, String cancelledBy, int version, String idNumber, Date idIssue,
+			Date idValidate, String viatlicioRadioGroup, String localOfIssue, String isIDDocLifetime,
+			Nationality passportNationality) {
 		this.service = service;
 		this.serviceFee = serviceFee;
 		this.modality = modality;
@@ -165,6 +223,7 @@ public class Booking {
 		this.location = location;
 		this.documentType = documentType;
 		this.identityDoc = identityDoc;
+		this.passport = passport;
 		this.nameReq = nameReq;
 		this.surnameReq = surnameReq;
 		this.birthdateReq = birthdateReq;
@@ -172,12 +231,28 @@ public class Booking {
 		this.nationality = nationality;
 		this.provinceAddress = provinceAddress;
 		this.districtAddress = districtAddress;
+		this.cityAddress = cityAddress;
 		this.neighborhoodReq = neighborhoodReq;
+		this.streetAddress = streetAddress;
+		this.hotelReservation = hotelReservation;
 		this.reasonForTravel = reasonForTravel;
 		this.note = note;
 		this.emailReq = emailReq;
 		this.countryCode = countryCode;
 		this.phoneNumberReq = phoneNumberReq;
+		this.singleName = singleName;
+		this.gender = gender;
+		this.maritalStatus = maritalStatus;
+		this.professionReq = professionReq;
+		this.positionReq = positionReq;
+		this.companyReq = companyReq;
+		this.haveEverBeenToMoz = haveEverBeenToMoz;
+		this.haveBeenResidentMoz = haveBeenResidentMoz;
+		this.reasonForLeavingMoz = reasonForLeavingMoz;
+		this.departureDate = departureDate;
+		this.companiesWorkedFor = companiesWorkedFor;
+		this.lengthOfStayMoz = lengthOfStayMoz;
+		this.residentDepartureDate = residentDepartureDate;
 		this.createdBy = createdBy;
 		this.createdDate = createdDate;
 		this.lastUpdateDate = lastUpdateDate;
@@ -186,10 +261,14 @@ public class Booking {
 		this.cancelledBy = cancelledBy;
 		this.version = version;
 		this.idNumber = idNumber;
+		this.idIssue = idIssue;
 		this.idValidate = idValidate;
 		this.viatlicioRadioGroup = viatlicioRadioGroup;
 		this.localOfIssue = localOfIssue;
+		this.isIDDocLifetime = isIDDocLifetime;
+		this.passportNationality = passportNationality;
 	}
+
 
 	public Location getLocation() {
 		return location;
@@ -477,23 +556,182 @@ public class Booking {
 	public void setViatlicioRadioGroup(String viatlicioRadioGroup) {
 		this.viatlicioRadioGroup = viatlicioRadioGroup;
 	}
+	
+	public Passport getPassport() {
+		return passport;
+	}
+
+	public void setPassport(Passport passport) {
+		this.passport = passport;
+	}
+
+	public String getSingleName() {
+		return singleName;
+	}
+
+	public void setSingleName(String singleName) {
+		this.singleName = singleName;
+	}
+
+	public GeneralData getGender() {
+		return gender;
+	}
+
+	public void setGender(GeneralData gender) {
+		this.gender = gender;
+	}
+
+	public GeneralData getMaritalStatus() {
+		return maritalStatus;
+	}
+
+	public void setMaritalStatus(GeneralData maritalStatus) {
+		this.maritalStatus = maritalStatus;
+	}
+
+	public Date getIdIssue() {
+		return idIssue;
+	}
+
+	public void setIdIssue(Date idIssue) {
+		this.idIssue = idIssue;
+	}
+
+	public Nationality getPassportNationality() {
+		return passportNationality;
+	}
+
+	public void setPassportNationality(Nationality passportNationality) {
+		this.passportNationality = passportNationality;
+	}
+
+	public String getProfessionReq() {
+		return professionReq;
+	}
+
+	public void setProfessionReq(String professionReq) {
+		this.professionReq = professionReq;
+	}
+
+	public String getPositionReq() {
+		return positionReq;
+	}
+
+	public void setPositionReq(String positionReq) {
+		this.positionReq = positionReq;
+	}
+
+	public String getCompanyReq() {
+		return companyReq;
+	}
+
+	public void setCompanyReq(String companyReq) {
+		this.companyReq = companyReq;
+	}
+
+	public boolean isHaveEverBeenToMoz() {
+		return haveEverBeenToMoz;
+	}
+
+	public void setHaveEverBeenToMoz(boolean haveEverBeenToMoz) {
+		this.haveEverBeenToMoz = haveEverBeenToMoz;
+	}
+
+	public boolean isHaveBeenResidentMoz() {
+		return haveBeenResidentMoz;
+	}
+
+	public void setHaveBeenResidentMoz(boolean haveBeenResidentMoz) {
+		this.haveBeenResidentMoz = haveBeenResidentMoz;
+	}
+
+	public String getReasonForLeavingMoz() {
+		return reasonForLeavingMoz;
+	}
+
+	public void setReasonForLeavingMoz(String reasonForLeavingMoz) {
+		this.reasonForLeavingMoz = reasonForLeavingMoz;
+	}
+
+	public Date getDepartureDate() {
+		return departureDate;
+	}
+
+	public void setDepartureDate(Date departureDate) {
+		this.departureDate = departureDate;
+	}
+
+	public String getCompaniesWorkedFor() {
+		return companiesWorkedFor;
+	}
+
+	public void setCompaniesWorkedFor(String companiesWorkedFor) {
+		this.companiesWorkedFor = companiesWorkedFor;
+	}
+
+	public GeneralData getLengthOfStayMoz() {
+		return lengthOfStayMoz;
+	}
+
+	public void setLengthOfStayMoz(GeneralData lengthOfStayMoz) {
+		this.lengthOfStayMoz = lengthOfStayMoz;
+	}
+
+	public Date getResidentDepartureDate() {
+		return residentDepartureDate;
+	}
+
+	public void setResidentDepartureDate(Date residentDepartureDate) {
+		this.residentDepartureDate = residentDepartureDate;
+	}
+
+	public String getCityAddress() {
+		return cityAddress;
+	}
+
+	public void setCityAddress(String cityAddress) {
+		this.cityAddress = cityAddress;
+	}
+
+	public String getStreetAddress() {
+		return streetAddress;
+	}
+
+	public void setStreetAddress(String streetAddress) {
+		this.streetAddress = streetAddress;
+	}
+	
+	public String getHotelReservation() {
+		return hotelReservation;
+	}
+
+	public void setHotelReservation(String hotelReservation) {
+		this.hotelReservation = hotelReservation;
+	}
 
 	@Override
 	public String toString() {
 		return "Booking [bookingId=" + bookingId + ", service=" + service + ", serviceFee=" + serviceFee + ", modality="
 				+ modality + ", status=" + status + ", dateToSchedule=" + dateToSchedule + ", location=" + location
-				+ ", documentType=" + documentType + ", identityDoc=" + identityDoc + ", nameReq=" + nameReq
-				+ ", surnameReq=" + surnameReq + ", birthdateReq=" + birthdateReq + ", countryOfBirthReq="
-				+ countryOfBirthReq + ", nationality=" + nationality + ", provinceAddress=" + provinceAddress
-				+ ", districtAddress=" + districtAddress + ", neighborhoodReq=" + neighborhoodReq + ", reasonForTravel="
-				+ reasonForTravel + ", note=" + note + ", emailReq=" + emailReq + ", countryCode=" + countryCode
-				+ ", phoneNumberReq=" + phoneNumberReq + ", createdBy=" + createdBy + ", createdDate=" + createdDate
+				+ ", documentType=" + documentType + ", identityDoc=" + identityDoc + ", passport=" + passport
+				+ ", nameReq=" + nameReq + ", surnameReq=" + surnameReq + ", birthdateReq=" + birthdateReq
+				+ ", countryOfBirthReq=" + countryOfBirthReq + ", nationality=" + nationality + ", provinceAddress="
+				+ provinceAddress + ", districtAddress=" + districtAddress + ", neighborhoodReq=" + neighborhoodReq
+				+ ", reasonForTravel=" + reasonForTravel + ", note=" + note + ", emailReq=" + emailReq
+				+ ", countryCode=" + countryCode + ", phoneNumberReq=" + phoneNumberReq + ", singleName=" + singleName
+				+ ", gender=" + gender + ", maritalStatus=" + maritalStatus + ", professionReq=" + professionReq
+				+ ", positionReq=" + positionReq + ", companyReq=" + companyReq + ", haveEverBeenToMoz="
+				+ haveEverBeenToMoz + ", haveBeenResidentMoz=" + haveBeenResidentMoz + ", reasonForLeavingMoz="
+				+ reasonForLeavingMoz + ", departureDate=" + departureDate + ", companiesWorkedFor="
+				+ companiesWorkedFor + ", lengthOfStayMoz=" + lengthOfStayMoz + ", residentDepartureDate="
+				+ residentDepartureDate + ", createdBy=" + createdBy + ", createdDate=" + createdDate
 				+ ", lastUpdateDate=" + lastUpdateDate + ", lastUpdateBy=" + lastUpdateBy + ", cancelledDate="
 				+ cancelledDate + ", cancelledBy=" + cancelledBy + ", version=" + version + ", idNumber=" + idNumber
-				+ ", idValidate=" + idValidate + ", viatlicioRadioGroup=" + viatlicioRadioGroup + ", localOfIssue="
-				+ localOfIssue + ", isIDDocLifetime=" + isIDDocLifetime + "]";
+				+ ", idIssue=" + idIssue + ", idValidate=" + idValidate + ", viatlicioRadioGroup=" + viatlicioRadioGroup
+				+ ", localOfIssue=" + localOfIssue + ", isIDDocLifetime=" + isIDDocLifetime + ", passportNationality="
+				+ passportNationality + "]";
 	}
-	
+
 	
 	
 }

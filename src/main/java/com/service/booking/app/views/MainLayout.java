@@ -2,6 +2,7 @@ package com.service.booking.app.views;
 
 import com.service.booking.app.data.entity.User;
 import com.service.booking.app.security.AuthenticatedUser;
+import com.service.booking.app.views.agendar.AgendarView;
 import com.service.booking.app.views.agendamentos.AgendamentosView;
 import com.service.booking.app.views.atendimento.AtendimentoView;
 import com.service.booking.app.views.home.HomeView;
@@ -168,7 +169,9 @@ public class MainLayout extends AppLayout {
         return new MenuItemInfo[]{ //
                 new MenuItemInfo("Home", LineAwesomeIcon.HOME_SOLID.create(), HomeView.class), //
 
-                new MenuItemInfo("Agendamentos", LineAwesomeIcon.CALENDAR_DAY_SOLID.create(), AgendamentosView.class), //
+               new MenuItemInfo("Agendar Serviço", LineAwesomeIcon.CALENDAR_DAY_SOLID.create(), AgendarView.class), //
+               
+               new MenuItemInfo("Pesquisar Agendamentos", LineAwesomeIcon.SEARCH_SOLID.create(), AgendamentosView.class), //
 
                 new MenuItemInfo("Atendimento", LineAwesomeIcon.LAPTOP_SOLID.create(), AtendimentoView.class), //
 

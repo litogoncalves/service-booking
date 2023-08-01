@@ -16,19 +16,19 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "service")
-public class Service {
+@Table(name = "general_data")
+public class GeneralData {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id")
-	private Integer serviceId;
-	@Column(length = 150, nullable = false)
+	@Column(name="id")
+	private Integer generalDataId;
+	@Column(length = 150, nullable=false)
 	private String name;
+	@Column(length = 150, nullable=false)
+	private String category;
 	@ManyToOne
-	@JoinColumn(name = "category_id", nullable = false)
-	private ServiceCategory serviceCategory;
-	@ManyToOne
-	@JoinColumn(name = "status_id", nullable = false)
+	@JoinColumn(name = "status_id")
 	private Status status;
 	@Column(length = 50, nullable = false)
 	private String createdBy;
@@ -42,16 +42,17 @@ public class Service {
 	private Date lastUpdateDate;
 	@Column(length = 50, nullable = true)
 	private String lastUpdateBy;
-	@Column(length = 2, nullable = true)
+	@Column(length = 2, nullable = false)
 	private int version;
 	
-	
-	public Service() {
+	public GeneralData() {
 	}
 
-	public Service(String name, Status status, String createdBy, Date createdDate, Date lastUpdateDate,
-			String lastUpdateBy, int version) {
+	public GeneralData(Integer generalDataId, String name, String category, Status status, String createdBy,
+			Date createdDate, Date lastUpdateDate, String lastUpdateBy, int version) {
+		this.generalDataId = generalDataId;
 		this.name = name;
+		this.category = category;
 		this.status = status;
 		this.createdBy = createdBy;
 		this.createdDate = createdDate;
@@ -59,21 +60,13 @@ public class Service {
 		this.lastUpdateBy = lastUpdateBy;
 		this.version = version;
 	}
-	
-	public Integer getServiceId() {
-		return serviceId;
+
+	public Integer getGeneralDataId() {
+		return generalDataId;
 	}
 
-	public void setServiceId(Integer serviceId) {
-		this.serviceId = serviceId;
-	}
-
-	public ServiceCategory getServiceCategory() {
-		return serviceCategory;
-	}
-
-	public void setServiceCategory(ServiceCategory serviceCategory) {
-		this.serviceCategory = serviceCategory;
+	public void setGeneralDataId(Integer generalDataId) {
+		this.generalDataId = generalDataId;
 	}
 
 	public String getName() {
@@ -82,6 +75,14 @@ public class Service {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 	public Status getStatus() {
@@ -131,15 +132,5 @@ public class Service {
 	public void setVersion(int version) {
 		this.version = version;
 	}
-
-	@Override
-	public String toString() {
-		return "Service [serviceId=" + serviceId + ", name=" + name + ", serviceCategory=" + serviceCategory
-				+ ", status=" + status + ", createdBy=" + createdBy + ", createdDate=" + createdDate
-				+ ", lastUpdateDate=" + lastUpdateDate + ", lastUpdateBy=" + lastUpdateBy + ", version=" + version
-				+ "]";
-	}
-	
-	
 	
 }

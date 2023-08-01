@@ -17,12 +17,46 @@ public class Labels {
 	public static final String DOCUMENT_TYPE_TRAVEL_A2 = "Documento de Viagem Para Mineiros ou Trabalhadores Sazonais (A2)";
 	public static final String DOCUMENT_TYPE_EMERGENCY_CERTIFICATE_A3 = "Certificado de Emergência Para Nacionnais (A3)";
 	
+	public static final String DOCUMENT_TYPE_VISA_B11 = "Visto de Permanência Temporária (B11)";
+	public static final String DOCUMENT_TYPE_VISA_B12 = "Visto de Residência (B12)";
+	public static final String DOCUMENT_TYPE_VISA_B131 = "Visto Para Trabalhador Por Conta de Outrem (B131)";
+	public static final String DOCUMENT_TYPE_VISA_B132 = "Visto Para Trabalhador No Âmbito da Cooperação (B132)";
+	public static final String DOCUMENT_TYPE_VISA_B133 = "Visto Para Missionário, Padre ou Sacerdote (B133)";
+	public static final String DOCUMENT_TYPE_VISA_B14 = "Visto de Estudante (B14)";
+	public static final String DOCUMENT_TYPE_VISA_B15 = "Visto de Actividades de Investimento (B15)";
+	public static final String DOCUMENT_TYPE_VISA_B16 = "Visto de Actividades Culturais (B16)";
+	public static final String DOCUMENT_TYPE_VISA_B17 = "Outros Vistos (Negócio, Turismo e Visita) (B17)";
+	
 	public static final String DOCUMENT_REQUEST_CONFIRM_DIALOG_TITLE = "Deseja solicitar o documento: {0}?";
 	public static final String DOCUMENT_REQUEST_REQUIREMENTS_TITLE = "Requisitos para solicitar o documento: ";
 
-	public static final String DOCUMENT_REQUIREMENT_ID_M18 = "Bilhete de Identidade (maior de 18 anos).";
-	public static final String DOCUMENT_REQUIREMENT_EXPIRED_PASSPORT = "Passaporte anterior, se for renovação.";
-	public static final String DOCUMENT_REQUIREMENT_POLICE_STATEMENT = "Declaração da polícia, se tiver perdido o passaporte anterior.";
+	public static final String DOCUMENT_REQUIREMENT_ID_UNDER_18 = "Bilhete de identidade do menor";
+	public static final String DOCUMENT_REQUIREMENT_LEGAL_REPRESENTATIVE_ID = "Bilhete de identidade do responsável ou representante legal";
+	public static final String DOCUMENT_REQUIREMENT_LEGAL_REPRESENTATIVE_DECLARETION = "Declaração do representante legal";
+
+	public static final String DOCUMENT_REQUIREMENT_ID_M18 = "Bilhete de Identidade (maior de 18 anos)";
+	public static final String DOCUMENT_REQUIREMENT_EXPIRED_PASSPORT = "Passaporte anterior, se for renovação";
+	public static final String DOCUMENT_REQUIREMENT_POLICE_STATEMENT = "Declaração da polícia, se tiver perdido o passaporte anterior";
+
+	public static final String DOCUMENT_REQUIREMENT_ID_DOC = "Bilhete de Identidade do requerente";
+	public static final String DOCUMENT_REQUIREMENT_MZ_NATIONALITY_AQUISITION = "Assento de aquisição de nacionalidade moçambicana";
+	public static final String DOCUMENT_REQUIREMENT_BIRTH_SEAT = "Assento de nascimento";
+	public static final String DOCUMENT_REQUIREMENT_WEDDING_SEAT = "Assento de casamento, se tiver adquirido a nacionalidade por via de casamento";
+	public static final String DOCUMENT_REQUIREMENT_SPOUSES_ID_CARD = "Bilhete de identidade do cônjuge";
+	public static final String DOCUMENT_REQUIREMENT_DIRE_RETURN_LETTER = "Carta de devolução de D.I.R.E.";
+	
+	public static final String DOCUMENT_REQUIREMENT_MZ_NATIONALITY_ATRIBUITION = "Assento de atribuição de nacionalidade moçambicana";
+	public static final String DOCUMENT_REQUIREMENT_BIRTH__OF_MINOR_SEAT = "Assento de nascimento do menor";
+	public static final String DOCUMENT_REQUIREMENT_RESIDENCE_IN_NATIONAL_TERRITORY = "Documento que atesta a residência no território nacional (D.I.R.E.)";
+	
+	public static final String DOCUMENT_REQUIREMENT_EMPLOYMENT_CONTRACT = "Contrato de trabalho (Bonassi), para trabalhadores mineiros";
+	public static final String DOCUMENT_REQUIREMENT_MINER_ID_CARD = "Cartão de identificação de Mineiro";
+	public static final String DOCUMENT_REQUIREMENT_EMPLOYMENT_CONTRACT_IN_FARMS = "Contrato de trabalho nas farmas, homologado pelo Ministério de Trabalho";
+	
+	public static final String DOCUMENT_REQUIREMENT_DECLARATION_OF_THE_LEGAL_REPRESENTATIVE = "Declaração do representante legal, em caso de menores";
+	public static final String DOCUMENT_REQUIREMENT_WAITING_TICKET_AND_BIRTH_CERTIFICATE = "Talão de espera bilhete, acompanhado pelo assento de nascimento";
+	
+	public static final String DOCUMENT_REQUIREMENT_CONTACT_EMBASSY = "Entre em contacto com a embaixada ou altos comissariados proximos de si";
 	
 	public static final String NATIONAL_SERVICE_CATEGORY_TITLE = "Serviços Disponíveis para Cidadãos Nacionais";
 	public static final String FOREIGN_SERVICE_CATEGORY_TITLE = "Serviços Disponíveis para Cidadãos Estrangeiros";
@@ -35,7 +69,11 @@ public class Labels {
 	public static final String DOCUMENT = "Documento";
 	public static final String PERSONAL_DATA = "Dados Pessoais";
 	public static final String CURRENT_ADDRESS = "Endereço Actual";
+	public static final String ADDRESS = "Endereço";
 	public static final String CONTACTS = "Contactos";
+	public static final String ID_DOCUMENT = "Documento de Identificação";
+	public static final String PROFESSION = "Profissão";
+	public static final String ACCOMMODATION_ADDRESS = "Endereço do Local de Hospedagem em Moçambique";
 	
 
 	//Forms Labels
@@ -57,25 +95,38 @@ public class Labels {
 	public static final String BITHDATE = "DATA DE NASCIMENTO";
 	public static final String TYPE_YOUR_BITHDATE = "Forneça a sua data de nascimento (obrigatório)";
 	public static final String IDENTITY_DOC_NUMBER = "Nº DE BILHETE DE IDENTIFICAÇÃO (B.I.)";
+	public static final String PASSPORT_DOC_NUMBER = "Nº DE PASSAPORTE";
 	public static final String TYPE_YOUR_IDENTITY_DOC_NUMBER = "Forneça o seu nº de B.I (obrigatório)";
+	public static final String TYPE_YOUR_PASSAPORT_DOC_NUMBER = "Forneça o seu nº de passaport (obrigatório)";
 	public static final String SEARCH_YOUR_IDENTITY_DOC_NUMBER = "Forneça o seu nº de B.I";
 	public static final String LIFETIME = "VITALÍCIO";
 	public static final String LIFETIME_HELPER_TEXT = "Marque Sim se o seu B.I for vitalício e marque Não se não";
 	public static final String YES = "SIM";
 	public static final String NO = "NÃO";
 	public static final String IDENTITY_DOC_VALIDATE = "DATA DE VALIDADE DO B.I";
+	public static final String PASSPORT_DOC_VALIDATE = "DATA DE VALIDADE";
 	public static final String TYPE_YOUR_IDENTITY_DOC_VALIDATE = "Forneça a data de validade do seu B.I (obrigatório)";
+	public static final String TYPE_YOUR_PASSPORT_DOC_VALIDATE = "Forneça a data de validade do seu passaporte (obrigatório)";
+	public static final String IDENTITY_DOC_ISSUE_DATE = "DATA DE EMISSÃO";
+	public static final String TYPE_YOUR_IDENTITY_DOC_ISSUE_DATE = "Forneça a data de emissão (obrigatório)";
 	public static final String LOCAL_OF_ISSUE = "LOCAL DE EMISSÃO";
 	public static final String TYPE_YOUR_LOCAL_OF_ISSUE = "Forneça o local de emissão do seu B.I (obrigatório)";
 	public static final String COUNTRY_OF_BIRTH = "PAÍS DE NASCIMENTO";
 	public static final String SELECT_COUNTRY_OF_BIRTH = "selecione o país de nascimento...";
 	public static final String SELECT_COUNTRY_OF_BIRTH_HELPER_TEXT = "Selecione o seu país de nascimento (obrigatório)";
 	public static final String NEIGHBORHOOD = "BAIRRO";
+	public static final String PERMANENT_RESIDENTIAL_ADDRESS = "ENDEREÇO ​​DA RESIDÊNCIA PERMANENTE";
+	public static final String STREET_ADDRESS = "AVENIDA/RUA/ Nº DE CASA";
+	public static final String HOTEL_RESERVATION = "NOME DO HOTEL E Nº DA RESERVA";
 	public static final String REASON_FOR_TRAVEL = "MOTIVO DA VIAGEM";
+	public static final String REASON_FOR_ENTRY_IN_MOZ = "MOTIVO DE ENTRADA EM MOÇAMBIQUE";
 	public static final String REASON_FOR_TRAVEL_HELPER_TEXT = "Escreva de forma resumida o motivo da sua viagem (obrigatório)";
+	public static final String REASON_FOR_ENTRY_IN_MOZ_HELPER_TEXT  = "Escreva de forma resumida o motivo da sua vinda a Moçambique (obrigatório)";
 	public static final String NATIONALITY = "NACIONALIDADE";
+	public static final String PASSPORT_NATIONALITY = "NACIONALIDADE DO PASSAPORTE";
 	public static final String SELECT_NATIONALITY = "selecione a nacionalidade...";
 	public static final String SELECT_YOUR_NATIONALITY = "Selecione a sua nacionalidade (obrigatório)";
+	public static final String SELECT_YOUR_PASSPORT_NATIONALITY = "Selecione a nacionalidade do seu passaporte (obrigatório)";
 	public static final String NOTE = "OBSERVAÇÃO";
 	public static final String NOTE_HELPER_TEXT = "Forneça explicação adicional caso exista (opcional)";
 	public static final String OPTIONAL = "(Opnional)";
@@ -86,6 +137,9 @@ public class Labels {
 	public static final String SELECT_YOUR_PROVINCE = "Selecione a sua provincia (obrigatório)";
 	public static final String SELECT_THE_PROVINCE = "selecione a província...";
 	public static final String CITY_OR_DISTRICT = "CIDADE/DISTRITO";
+	public static final String CITY = "CIDADE";
+	public static final String TYPE_YOUR_CITY = "Forneça o nome sua cidade (obrigatório)";
+	public static final String DISTRICT = "DISTRITO";
 	public static final String SELECT_THE_DISTRICT = "selecione o distrito...";
 	public static final String SELECT_YOUR_DISTRICT = "Selecione a sua cidade/distrito (obrigatório)";
 	public static final String NO_DISTRICT_AVALIBLE = "NENHUM DISTRITO DISPONÍVEL PARA A PROVÍNCIA SELECIONADA...";
@@ -99,6 +153,28 @@ public class Labels {
 	public static final String COUNTRY_CODE = "CÓDIGO DO PAÍS";
 	public static final String SELECT_YOUR_COUNTRY_CODE = "Selecione o código do país do seu telemóvel";
 	public static final String TYPE_CODE_OR_DOC_NUMBER = "Forneça o seu código de agendamento ou nº de B.I ou de Passaport ou Visa (obrigatório)";
+	public static final String SINGLE_NAME = "NOME DE SOLTEIRO(A)";
+	public static final String TYPE_YOUR_SINGLE_NAME = "Forneça o nome de solteiro(a) (opcional)";
+	public static final String GENDER = "SEXO";
+	public static final String SELECT_GENDER = "selecione o sexo...";
+	public static final String GENDER_HELPER_TEXT = "Selecione o seu sexo (obrigatório)";
+	public static final String MARITAL_STATUS = "ESTADO CIVIL";
+	public static final String MARITAL_STATUS_HELPER_TEXT = "Selecione o seu estado civil (obrigatório)";
+	public static final String PROFESSION_OCCUPATION = "PROFISSÃO/OCUPAÇÃO";
+	public static final String TYPE_YOUR_PROFESSION_OCCUPATION = "Forneça a sua profissão ou ocupação (obrigatório)";
+	public static final String POSITION_HELD = "CARGO QUE OCUPA";
+	public static final String TYPE_YOUR_POSITION_HELD = "Forneça o cargo que ocupa (obrigatório)";
+	public static final String COMPANY_OR_ORGANIZATION = "Instituição onde trabalha ou estuda";
+	public static final String TYPE_YOUR_COMPANY_OR_ORGANIZATION = "Forneça a instituição, organização ou empresa onde trabalha ou estuda (obrigatório)";
+	public static final String HAVE_BEEN_TO_MOZ = "ESTEVE ALGUMA VEZ EM MOÇAMBIQUE";
+	public static final String REASON_TO_LEAVE_MOZ = "PORQUE SAIU DE MOÇAMBIQUE";
+	public static final String DEPARTURE_DATE = "DATA DE SAÍDA";
+	public static final String TYPE_YOUR_DEPARTURE_DATE = "Forneça a data de saída";
+	public static final String COMPANIES_WORKED_FOR = "INDIQUE AS INSTITUIÇÕES E EMPRESAS A QUE ESTEVE LIGADO";
+	public static final String HAVE_BEEN_RESIDENT_MOZ = "JA FOI RESIDENTE ALGUMA VEZ EM MOÇAMBIQUE";
+	public static final String MARK_YOUR_HAVE_BEEN_RESIDENT_MOZ = "Marque Sim se ja tiver sido residente em Moçambique, caso contrário marque Não";
+	public static final String PERIOD_OF_STAY = "TEMPO DE ESTADIA EM MOÇAMBIQUE";
+	public static final String PERIOD_OF_STAY_HELPER_TEXT = "Selecione o seu tempo de estadia em Moçambique";
 	
 	//Validation Messages
 	public static final String REQUIRED_FIELD = "Campo obrigatório";
@@ -137,7 +213,7 @@ public class Labels {
 	//Confirm Dialog
 	public static final String CANCEL_BOOKING = "Anular Agendamento";
 	public static final String CANCEL_BOOKING_CONFIRM_TEXT = "Tem certeza que deseja anular o agendamento com o código #?";
-	public static final String BOOKING_CONFIRMATION = "Confirme a baixo os dados do seu agendamento para tratar o documento ";
+	public static final String BOOKING_CONFIRMATION = "Confirme a baixo os dados do seu agendamento para tratar o documento: ";
 	public static final String CONFIRM_BOOKING = "Confirmação do Agendamento";
 	public static final String CONFIRM_BOOKING_CANCELLATION = "Anular Agendamento";
 	
