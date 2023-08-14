@@ -16,4 +16,5 @@ public interface ModalityService {
 	public void save(Modality modality);
 	public List<Modality> findAll();
 	public Modality getModality(Integer modalityId);
+	public List<Modality> findModalityByCategory(String category);
 }

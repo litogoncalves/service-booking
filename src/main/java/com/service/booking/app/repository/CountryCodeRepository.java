@@ -17,4 +17,7 @@ public interface CountryCodeRepository extends JpaRepository<CountryCode, Intege
 	@Query("SELECT c FROM CountryCode c WHERE c.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
     List<CountryCode> findCountryCodeByStatus(@Param("statusCode") String statusCode);
 	
+	@Query("SELECT c FROM CountryCode c WHERE c.code = :code and c.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
+	CountryCode findCountryCodeByCodeAndStatus(@Param("code") String code, @Param("statusCode") String statusCode);
+	
 }

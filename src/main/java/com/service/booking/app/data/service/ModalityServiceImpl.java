@@ -24,12 +24,17 @@ public class ModalityServiceImpl implements ModalityService {
 
 	@Override
 	public List<Modality> findAll() {
-		return repository.findModalityByStatus(Constants.STATUS_ACTIVE_CODE);
+		return repository.findModalityNationalByStatus(Constants.NATIONAL, Constants.STATUS_ACTIVE_CODE);
 	}
 
 	@Override
 	public Modality getModality(Integer modalityId) {
 		return repository.findByModalityId(modalityId);
+	}
+
+	@Override
+	public List<Modality> findModalityByCategory(String category) {
+		return repository.findModalityByCategoryAndStatus(category, Constants.STATUS_ACTIVE_CODE);
 	}
 
 }

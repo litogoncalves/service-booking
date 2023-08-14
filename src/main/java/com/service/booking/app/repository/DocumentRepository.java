@@ -15,4 +15,7 @@ public interface DocumentRepository extends JpaRepository<Document, Integer>{
 	
 	@Query("SELECT d FROM Document d WHERE d.category = :category AND d.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
     List<Document> findDocumentsByCaregoryAndStatus(@Param("category") String category, @Param("statusCode") String statusCode);
+	
+	@Query("SELECT d FROM Document d WHERE d.name in ('novo', 'new', 'Nouveau') and d.category = :category AND d.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
+    List<Document> findForeignDocs(@Param("category") String category, @Param("statusCode") String statusCode);
 }

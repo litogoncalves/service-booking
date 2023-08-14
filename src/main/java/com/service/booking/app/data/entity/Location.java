@@ -153,5 +153,14 @@ public class Location {
 	public void setVersion(int version) {
 		this.version = version;
 	}
+
+	@Override
+	public String toString() {
+		return "Location [locationId=" + locationId + ", name=" + name + ", province=" + province + ", maxLeadDays="
+				+ maxLeadDays + ", minLeadDays=" + minLeadDays + ", createdBy=" + createdBy + ", createdDate="
+				+ createdDate + ", lastUpdateDate=" + lastUpdateDate + ", lastUpdateBy=" + lastUpdateBy + ", status="
+				+ status + ", version=" + version + "]";
+	}
+	
 	
 }

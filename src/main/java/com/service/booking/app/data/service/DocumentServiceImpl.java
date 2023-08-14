@@ -32,4 +32,9 @@ public class DocumentServiceImpl implements DocumentService{
 		return repository.findByDocumentId(documentId);
 	}
 
+	@Override
+	public List<Document> findForeingDocs(String category) {
+		return repository.findForeignDocs(category, Constants.STATUS_ACTIVE_CODE);
+	}
+
 }

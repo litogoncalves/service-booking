@@ -1,10 +1,15 @@
 package com.service.booking.app.views.passaport;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.service.booking.app.constants.Constants;
 import com.service.booking.app.constants.Labels;
+import com.service.booking.app.constants.Notifications;
 import com.service.booking.app.data.entity.Booking;
+import com.service.booking.app.data.entity.BookingLimit;
 import com.service.booking.app.data.entity.Country;
 import com.service.booking.app.data.entity.CountryCode;
 import com.service.booking.app.data.entity.District;
@@ -18,11 +23,13 @@ import com.service.booking.app.data.entity.Province;
 import com.service.booking.app.data.entity.Service;
 import com.service.booking.app.data.entity.ServiceFee;
 import com.service.booking.app.data.entity.Status;
+import com.service.booking.app.data.service.BookingLimitService;
 import com.service.booking.app.data.service.BookingService;
 import com.service.booking.app.data.service.CountryCodeService;
 import com.service.booking.app.data.service.CountryService;
 import com.service.booking.app.data.service.DistrictService;
 import com.service.booking.app.data.service.DocumentService;
+import com.service.booking.app.data.service.EmailReportService;
 import com.service.booking.app.data.service.GeneralDataService;
 import com.service.booking.app.data.service.IdentityDocumentService;
 import com.service.booking.app.data.service.LocationService;
@@ -32,10 +39,12 @@ import com.service.booking.app.data.service.ProvinceService;
 import com.service.booking.app.data.service.ServFeeService;
 import com.service.booking.app.data.service.ServService;
 import com.service.booking.app.data.service.StatusService;
+import com.service.booking.app.http.controller.NotificationManager;
 import com.service.booking.app.utils.AlphanumericGenerator;
 import com.service.booking.app.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -93,6 +102,10 @@ public class PassportA14View extends VerticalLayout {
 	private final LocationService locationService;
 	private final CountryCodeService countryCodeService;
 	private final GeneralDataService generalDataService;
+	private final BookingLimitService bookingLimitService;
+	private final EmailReportService emailSendingReportService;
+	
+	private NotificationManager notificationManager;
 	
 	private Status activeStatus;
 	private Status aprovedStatus;
@@ -100,6 +113,7 @@ public class PassportA14View extends VerticalLayout {
 	private GeneralData defaultGender, defaultMaritalStatus;
 	private Booking booking;
 	private Binder<Booking> binder;
+	private List<BookingLimit> bookingLimit;
 	
 	private ComboBox<Document> documentType;
 	private ComboBox<Modality> modality;
@@ -155,12 +169,11 @@ public class PassportA14View extends VerticalLayout {
 	private H4 header;
 	private Div formCard;
 	
-	
 	public PassportA14View(ServService servService, BookingService bookingService, IdentityDocumentService identityDocService, 
 			StatusService statusService, DocumentService documentService, ModalityService modalityService, ServFeeService servFeeService,
 			CountryService countryService, NationalityService nationalityService, ProvinceService provinceService,
 			DistrictService districtService, LocationService locationService, CountryCodeService countryCodeService,
-			GeneralDataService generalDataService) {
+			GeneralDataService generalDataService, BookingLimitService bookingLimitService, EmailReportService emailSendingReportService) {
 
 		this.servService = servService;
 		this.bookingService = bookingService;
@@ -176,6 +189,8 @@ public class PassportA14View extends VerticalLayout {
 		this.locationService = locationService;
 		this.countryCodeService = countryCodeService;
 		this.generalDataService = generalDataService;
+		this.bookingLimitService = bookingLimitService;
+		this.emailSendingReportService = emailSendingReportService;
 		
 		setAlignItems(Alignment.CENTER);
 		
@@ -197,6 +212,18 @@ public class PassportA14View extends VerticalLayout {
 		booking = new Booking(); 
 		binder = new BeanValidationBinder<>(Booking.class);
 		binder.bindInstanceFields(this);
+
+		 binder.forField(idNumber)
+        .asRequired(Labels.REQUIRED_FIELD)
+        .bind(Booking::getIdNumber, Booking::setIdNumber);
+		 
+		 binder.forField(idValidate)
+		 .asRequired(Labels.REQUIRED_FIELD)
+		 .bind(Booking::getIdValidate, Booking::setIdValidate);
+
+		 binder.forField(localOfIssue)
+		 .asRequired(Labels.REQUIRED_FIELD)
+		 .bind(Booking::getLocalOfIssue, Booking::setLocalOfIssue);
 	}
 	
 	private Component createHeader() {
@@ -204,7 +231,7 @@ public class PassportA14View extends VerticalLayout {
 		header = new H4(Labels.DOCUMEMT_TYPE_PASSPORT_A14);
 		header.getStyle().set("color", "#fff");
 		headerDiv.getStyle().set("text-transform", "uppercase");
-		headerDiv.addClassName("formTitle"); //.getStyle().set("background-color", "rgba(23, 137, 252, 0.3)");
+		headerDiv.addClassName("formTitle"); 
 		headerDiv.setWidth("100%");
 		headerDiv.addClassNames(Padding.Vertical.SMALL, "header-radius");
 		headerDiv.add(header);
@@ -231,7 +258,7 @@ public class PassportA14View extends VerticalLayout {
 		formLayout.add(provinceAddress, districtAddress, neighborhoodReq);
 		formLayout.add(hr3);
 		formLayout.add(scheduling);
-		formLayout.add(reasonForTravel, note, dateToSchedule, location);
+		formLayout.add(reasonForTravel, note, location, dateToSchedule);
 		formLayout.add(hr4);
 		formLayout.add(contacts);
 		formLayout.add(countryCode);
@@ -286,14 +313,12 @@ public class PassportA14View extends VerticalLayout {
 	private void createDocumentType() {
 		List<Document> documentTypeItems = documentService.findAll();
 		documentType.setItems(documentTypeItems);
-		//documentType.setValue(documentTypeItems.get(0));
 		documentType.setItemLabelGenerator(Document::getName);
 	}
 	
 	private void createModality() {
 		List<Modality> modalityItems = modalityService.findAll();
 		modality.setItems(modalityItems);
-		//modality.setValue(modalityItems.get(0));
 		modality.setItemLabelGenerator(Modality::getName);
 	}
 	
@@ -305,19 +330,20 @@ public class PassportA14View extends VerticalLayout {
 	
 	private void createCountry() {
 		List<Country> countryItems = countryService.findAll();
+		Country moz = countryService.getCountryByCode(Constants.COUNTRY_CODE_MZ);
 		countryOfBirthReq.setItems(countryItems);
 		countryOfBirthReq.setItemLabelGenerator(Country::getName);
+		if(moz != null)
+			countryOfBirthReq.setValue(moz);
 	}
 	
 	private void createNationality() {
 		List<Nationality> nationalityItems = nationalityService.findAll();
-		/*Optional<Nationality> moz = nationalityItems.stream().filter(element -> element.getCountryCode() == Constants.COUNTRY_CODE_MZ).findFirst();
-		nationality.setItems(nationalityItems);
-		if(moz != null) {
-			nationality.setValue(moz.get());	
-		}*/
+		Nationality moz = nationalityService.getNationalityByCode(Constants.COUNTRY_CODE_MZ_ISO);
 		nationality.setItems(nationalityItems);
 		nationality.setItemLabelGenerator(Nationality::getName);
+		if(moz != null)
+			nationality.setValue(moz);
 	}
 	
 	private void createProvince() {
@@ -384,10 +410,17 @@ public class PassportA14View extends VerticalLayout {
 		this.birthdateReq.setHelperText(Labels.TYPE_YOUR_BITHDATE);
 		this.birthdateReq.setClearButtonVisible(true);
 		
+		String regex = "\\d{12}[a-zA-Z]";
 		this.idNumber = new TextField(Labels.IDENTITY_DOC_NUMBER);
 		this.idNumber.setHelperText(Labels.TYPE_YOUR_IDENTITY_DOC_NUMBER);
 		this.idNumber.setRequired(true);
+		this.idNumber.setErrorMessage(Labels.REQUIRED_FIELD); // Set the error message for the empty field
 		this.idNumber.setClearButtonVisible(true);
+		this.idNumber.setMaxLength(13);
+		this.idNumber.setMinLength(13);
+		this.idNumber.setAllowedCharPattern("[0-9A-Z]");
+		this.idNumber.setPattern(regex);
+		
 		
 		this.idValidate = new DatePicker(Labels.IDENTITY_DOC_VALIDATE);
 		this.idValidate.setHelperText(Labels.TYPE_YOUR_IDENTITY_DOC_VALIDATE);
@@ -424,7 +457,6 @@ public class PassportA14View extends VerticalLayout {
                     .setHelperText(e.getValue().length() + "/" + rfTravelCharLimit+" "+Labels.REASON_FOR_TRAVEL_HELPER_TEXT);
         });
         
-        
         this.note = new TextArea(Labels.NOTE);
         this.note.setMaxLength(noteCharLimit);
         this.note.setValueChangeMode(ValueChangeMode.EAGER);
@@ -436,8 +468,24 @@ public class PassportA14View extends VerticalLayout {
         });
         
         this.dateToSchedule = new DatePicker(Labels.DATE_TO_SCHEDULE);
+        this.dateToSchedule.setEnabled(false);
+        // Add a value change listener with the custom validator
         this.dateToSchedule.setHelperText(Labels.DATE_TO_SCHEDULE_HELPER_TEXT);
         this.dateToSchedule.setClearButtonVisible(true);
+     // Add a value change listener with the custom validator
+        dateToSchedule.addValueChangeListener(event -> {
+            LocalDate selectedDate = event.getValue();
+            if (selectedDate != null && !isWorkingDay(selectedDate)) {
+                Notification notification = new Notification(Labels.SELECT_ONLY_WORKING_DAYS, 7000,
+                        Position.TOP_CENTER);
+                notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                notification.open();
+                dateToSchedule.clear();
+            }else
+            	if(location.getValue() != null && dateToSchedule.getValue() != null) {
+            		maximumDailyCapacityReached();
+            	}
+        });
         
         this.provinceAddress = new ComboBox<Province>(Labels.PROVINCE);
         this.provinceAddress.setHelperText(Labels.SELECT_YOUR_PROVINCE);
@@ -469,17 +517,46 @@ public class PassportA14View extends VerticalLayout {
         
         this.location = new ComboBox<Location>(Labels.PLACE_TO_SCHEDULE);
         this.location.setHelperText(Labels.PLACE_TO_SCHEDULE_HELPER_TEXT);
-
+        this.location.addValueChangeListener(e -> {
+        	if(location.getValue() != null)
+        		dateToSchedule.setEnabled(true);
+        	else {
+        		dateToSchedule.setEnabled(false);
+        		dateToSchedule.clear();
+        	}
+        });
+        
         this.countryCode = new ComboBox<CountryCode>(Labels.COUNTRY_CODE);
         this.countryCode.setHelperText(Labels.SELECT_YOUR_COUNTRY_CODE);
+        this.countryCode.addValueChangeListener(e -> {
+        	if(this.countryCode.getValue() != null && this.countryCode.getValue().getName().equals("Mozambique(+258)"))
+        	{
+                this.phoneNumberReq.setMinLength(9);
+                this.phoneNumberReq.setMaxLength(9);
+        	}else {
+                this.phoneNumberReq.setMinLength(5);
+                this.phoneNumberReq.setMaxLength(18);
+        	}
+        });
         
         this.phoneNumberReq = new TextField(Labels.PHOME_NUMBER);
         this.phoneNumberReq.setHelperText(Labels.TYPE_YOUR_PHONE_NUMBER);
-        this.phoneNumberReq .setPlaceholder("82XXXXXXX");
         this.phoneNumberReq.setPrefixComponent(VaadinIcon.PHONE.create());
         this.phoneNumberReq.setAllowedCharPattern("[0-9]");
-        this.phoneNumberReq.setMinLength(5);
-        this.phoneNumberReq.setMaxLength(18);
+        this.phoneNumberReq.addValueChangeListener(e -> {
+        	if(this.countryCode.getValue() != null && this.countryCode.getValue().getName().equals("Mozambique(+258)"))
+        	{	String number = this.phoneNumberReq.getValue();
+        	
+        		if(!number.startsWith("82") && !number.startsWith("83") && !number.startsWith("84") && !number.startsWith("85")
+        				&& !number.startsWith("86") && !number.startsWith("87")) {
+        			Notification notification = Notification.show(Labels.TYPE_VALID_PHONE_NUMBER_258, 5000,
+                            Position.TOP_CENTER);
+                    notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    
+                    phoneNumberReq.clear();
+        		}
+        	}
+        });
         this.phoneNumberReq.setClearButtonVisible(true);
         
         this.emailReq = new EmailField(Labels.EMAIL);
@@ -487,7 +564,7 @@ public class PassportA14View extends VerticalLayout {
         this.emailReq .setPlaceholder("exemplo@gmail.com");
         this.emailReq.setClearButtonVisible(true);
         this.emailReq.setPrefixComponent(VaadinIcon.ENVELOPE.create());
-
+        
         this.defaultGender = generalDataService.getGeneralDataByName(Constants.NOT_APPLICABLE, Constants.GENDER);
         this.defaultMaritalStatus = generalDataService.getGeneralDataByName(Constants.NOT_APPLICABLE, Constants.MARITAL_STATUS);
         
@@ -542,7 +619,16 @@ public class PassportA14View extends VerticalLayout {
 	 
 	 private void createConfirmDialog() {
 		 try {
+			 nameReq.setValue(nameReq.getValue().trim());
+			 surnameReq.setValue(surnameReq.getValue().trim());
+			 idNumber.setValue(idNumber.getValue().trim());
+			 localOfIssue.setValue(localOfIssue.getValue().trim());
+			 reasonForTravel.setValue(reasonForTravel.getValue().trim());
 			 binder.writeBean(booking);
+			 
+			 this.idNumber.isRequiredIndicatorVisible();
+			 this.idNumber.setInvalid(true);
+			 this.idNumber.addClientValidatedEventListener(e -> {});
 			 
 			 confirmDialog = new ConfirmDialog();
 			 confirmDialog.setCancelable(true);
@@ -566,7 +652,7 @@ public class PassportA14View extends VerticalLayout {
 		        confirmDialog.add(unorderedList);
 			 
 			 confirmDialog.setConfirmButtonTheme("success primary");
-	        
+	             
 			 confirmDialog.setWidth("50%");
 	        
 			 confirmDialog.open();
@@ -578,12 +664,12 @@ public class PassportA14View extends VerticalLayout {
 					
 					e.printStackTrace();
 				}
-			
 		}
 	 }
 
 	 private void saveBooking() {
 			try {
+				Div content = new Div();
 				
 				this.identityDoc.setName(booking.getNameReq());
 				this.identityDoc.setSurname(booking.getSurnameReq());
@@ -607,13 +693,79 @@ public class PassportA14View extends VerticalLayout {
 				this.booking.setPositionReq(Constants.NOT_APPLICABLE);
 				this.booking.setGender(defaultGender);
 				
-				identityDocService.save(identityDoc);
-				bookingService.save(booking);
+				Booking activeBooking = bookingService.getBookingByIDDocNumberAndStatusAndDate(idNumber.getValue(), booking.getService().getServiceId(), Constants.STATUS_APROVEDAPPROVED_FOR_CAPTURE_CODE);
+				List<Booking> bookingsWithSamePhone = bookingService.findByPhoneNumberAndStatusAndDate(phoneNumberReq.getValue(), Constants.STATUS_APROVEDAPPROVED_FOR_CAPTURE_CODE);
+				System.out.println(bookingsWithSamePhone);
+				if(activeBooking != null) {
+					 ConfirmDialog dialog = new ConfirmDialog();
+					 
+				     dialog.setHeader(Labels.APPLICANT_HAS_AN_ACTIVE_SCHEDULE);
+				     String html = Labels.APPLICANT_HAS_AN_ACTIVE_SCHEDULE_TEXT_INFO;
+				     html = html.replace("#1", booking.getDateToScheduleFormated());
+				     html = html.replace("#2", booking.getLocation().getName());
+				     html = html.replace("#3", booking.getService().getName());
+				     content.add(new Html(html));
+				        
+				     dialog.setText(content);
+				     
+				     dialog.setCancelable(true);
+				     dialog.setCancelText("Pesquisar Agendamento");
+				     dialog.addCancelListener(event -> { navigateToView("agendamentos"); });
 
-				navigateToView("/agendar");
-				Notification notification = Notification.show(Labels.SAVED_BOOKING_SUCCESSFULLY+" "+booking.getBookingId(), 10000, Position.TOP_CENTER); 
-				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-				notification.setPosition(Position.TOP_CENTER);
+				     dialog.setRejectable(true);
+				     dialog.setRejectText("Reagendar");
+				     dialog.setRejectButtonTheme("success primary");
+				     dialog.addRejectListener(event -> { navigateToView("agendamentos"); 
+				     	Notification notification = Notification.show(Labels.SEARCH_FOR_BOOKING, 10000, Position.BOTTOM_CENTER); 
+						notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+				     });
+
+				     dialog.setConfirmText("Fechar");
+				     dialog.addConfirmListener(event -> { navigateToView("agendar"); });
+				     
+				     dialog.open();
+				}else 
+				if(bookingsWithSamePhone != null && bookingsWithSamePhone.size() >= 5){
+					ConfirmDialog dialog = new ConfirmDialog();
+					 
+				     dialog.setHeader(Labels.APPLICANT_HAS_MORE_THAN_FIVE_BOOKINGS);
+				     String html = Labels.APPLICANT_HAS_MORE_THAN_FIVE_BOOKINGS_TEXT_INFO;
+				     html = html.replace("#1", booking.getPhoneNumberReq());
+				     content.add(new Html(html));
+				        
+				     dialog.setText(content);
+				     
+				     dialog.setConfirmText("OK");
+
+				     dialog.open();
+				}
+				else{
+					Booking existingBooking = bookingService.getBookingByBookingId(booking.getBookingId());
+					while(existingBooking != null) {
+						this.booking.setBookingId(AlphanumericGenerator.generateAlphanumericValue());
+						existingBooking = bookingService.getBookingByBookingId(booking.getBookingId());
+				}
+					
+					identityDocService.save(identityDoc);
+					bookingService.save(booking);
+					
+					if(booking.getEmailReq() != null) {
+						notificationManager = new NotificationManager(emailSendingReportService);
+						
+						String htmlBody = Notifications.EMAIL_HTML_BODY_BOOKING;
+						htmlBody = htmlBody.replace("#fullname", booking.getNameReq().concat(" ").concat(booking.getSurnameReq()))
+								.replace("#doc", booking.getService().getName())
+								.replace("#code", booking.getBookingId()).replace("#date", booking.getDateToScheduleFormated())
+								.replace("#local", booking.getLocation().getName());
+						
+						notificationManager.sendHtmlEmailNotification(booking.getEmailReq(), "", "", Notifications.EMAIL_SUBJECT_BOOKING, htmlBody, booking);
+					}
+					
+					navigateToView("/agendar");
+					Notification notification = Notification.show(Labels.SAVED_BOOKING_SUCCESSFULLY+" "+booking.getBookingId(), 10000, Position.TOP_CENTER); 
+					notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+				}
+				
 			} catch (Exception e) {
 				Notification notification = Notification.show(Labels.SAVED_BOOKING_ERROR); 
 				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -624,6 +776,66 @@ public class PassportA14View extends VerticalLayout {
 			}
 	}
 	 
+	 private boolean maximumDailyCapacityReached() {
+		 Location selectedLocal = location.getValue();		 
+		 LocalDate date = dateToSchedule.getValue();
+		 LocalDate date1 = getNexWorkingDay(date), date2 = getNexWorkingDay(date1), date3 = getNexWorkingDay(date2);
+		 bookingLimit = bookingLimitService.findBookingLimitByDatesAndLocatio(date, date1, date2, date3, selectedLocal.getLocationId());
+		 
+		 if(bookingLimit != null && bookingLimit.get(0).getTotal_date_bookings() >= selectedLocal.getMaxLeadDays()) {
+			 bookingMaxLeadDayDialog(dateToSchedule.getValue(), selectedLocal.getMaxLeadDays());
+			 dateToSchedule.clear();
+		 }
+		 
+		 if(selectedLocal.getMaxLeadDays() > 5)
+			 return true;
+		 
+		 return false;
+	 }
+	 
+	 private LocalDate getNexWorkingDay(LocalDate date) {
+		 if(date.getDayOfWeek() == DayOfWeek.FRIDAY) {
+			 return date.plusDays(3);
+		 }else
+			 if(date.getDayOfWeek() == DayOfWeek.SATURDAY) {
+				 return date.plusDays(2);
+			 }else
+				return date.plusDays(1);
+	 }
+	 
+	 private void bookingMaxLeadDayDialog(LocalDate date, int limit) {
+		 Div content = new Div();
+		 Html text;
+		 int count = 0;
+		 UnorderedList unorderedList = new UnorderedList();
+		 for(BookingLimit element : bookingLimit) {
+			 if(element.getTotal_date_bookings() < limit)
+			 {
+				 ListItem item = new ListItem(element.getBooking_date().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+				 unorderedList.add(item);
+				 count++;
+			 }
+		 }
+		
+		if(count > 0) 
+			text = new Html(Labels.UNAVAILABLE_DATE_TEXT_INFO.replace("#", date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+		else
+			text = new Html(Labels.UNAVAILABLE_DATE_TEXT_INFO);
+	     
+		 content.add(text, unorderedList);
+
+	     ConfirmDialog dialog = new ConfirmDialog();
+	     dialog.setHeader(Labels.UNAVAILABLE_DATE);
+	        
+	     dialog.setText(content);
+
+	     dialog.setConfirmText("OK");
+
+	     dialog.open();
+	 }
+	 
+	 
+	 
 	 private void clearFields() {
 			booking = new Booking();
 			binder.getFields().forEach(HasValue::clear);
@@ -633,5 +845,9 @@ public class PassportA14View extends VerticalLayout {
 	private void navigateToView(String route) {
 		getUI().ifPresent(ui -> ui.navigate(route));
 	}
-
+	
+	private boolean isWorkingDay(LocalDate date) {
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        return dayOfWeek != DayOfWeek.SATURDAY && dayOfWeek != DayOfWeek.SUNDAY;
+    }
 }

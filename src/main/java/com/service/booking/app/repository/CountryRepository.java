@@ -16,4 +16,7 @@ public interface CountryRepository extends JpaRepository<Country, Integer> {
 	@Query("SELECT c FROM Country c WHERE c.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
     List<Country> findCountryByStatus(@Param("statusCode") String statusCode);
 	
+	@Query("SELECT c FROM Country c WHERE c.code = :code and  c.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
+	Country findCountryByCode(@Param("code") String code, @Param("statusCode") String statusCode);
+	
 }

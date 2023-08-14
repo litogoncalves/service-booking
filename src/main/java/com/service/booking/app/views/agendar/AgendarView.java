@@ -196,14 +196,14 @@ public class AgendarView extends VerticalLayout {
         		workVisaSolutions);
         workVisaSolutionsPanel.addThemeVariants(DetailsVariant.FILLED);
         
-        VerticalLayout billingAddressLayout = new VerticalLayout();
-        billingAddressLayout.setSpacing(false);
-        billingAddressLayout.setPadding(false);
-        billingAddressLayout.add(street);
+        VerticalLayout visaExtensionLayout = new VerticalLayout();
+        visaExtensionLayout.setSpacing(false);
+        visaExtensionLayout.setPadding(false);
+        visaExtensionLayout.add(visaExtensionConfirmDialog(Constants.VISA_B21));
 
-        AccordionPanel billingAddressPanel = accordion.add("PRORROGAÇÃO DE VISTOS",
-                billingAddressLayout);
-        billingAddressPanel.addThemeVariants(DetailsVariant.FILLED);
+        AccordionPanel visaExtensionPanel = accordion.add("PRORROGAÇÃO DE VISTOS",
+                visaExtensionLayout);
+        visaExtensionPanel.addThemeVariants(DetailsVariant.FILLED);
 
         Span cardBrand = new Span("Mastercard");
         Span cardNumber = new Span("1234 5678 9012 3456");
@@ -290,7 +290,17 @@ public class AgendarView extends VerticalLayout {
 		        			
                             dialog.addConfirmListener(event -> navigateToView("/documentA2"));
 		                    button = new Button(Labels.DOCUMENT_TYPE_TRAVEL_A2);
-	        		}else {
+	        		}else
+	        			if(passportType.equals(Constants.VISA_B21)){
+	            			dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B21);
+	                        dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+	                        dialog.add(visaRequirements());
+	                        dialog.setConfirmButtonTheme("success primary");
+	            			
+	            			dialog.addConfirmListener(event -> navigateToView("/visaB17"));
+	                        button = new Button(Labels.DOCUMENT_TYPE_VISA_B17);
+	            		}
+            			else {
 	        			dialog.setHeader(Labels.DOCUMENT_TYPE_EMERGENCY_CERTIFICATE_A3);
                         dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
                         dialog.add(certificateA2Requirements());
@@ -371,16 +381,7 @@ public class AgendarView extends VerticalLayout {
                             dialog.addConfirmListener(event -> navigateToView("/visaB16"));
 		                    button = new Button(Labels.DOCUMENT_TYPE_VISA_B16);
 	        		}else 
-		        		if(documentType.equals(Constants.VISA_B17)){
-		        			dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B17);
-	                        dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-	                        dialog.add(visaRequirements());
-	                        dialog.setConfirmButtonTheme("success primary");
-		        			
-		        			dialog.addConfirmListener(event -> navigateToView("/visaB17"));
-		                    button = new Button(Labels.DOCUMENT_TYPE_VISA_B17);
-		        		}
-		        		else {
+		        		 {
 		        			dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B17);
 	                        dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
 	                        dialog.add(visaRequirements());
@@ -433,15 +434,7 @@ public class AgendarView extends VerticalLayout {
     			dialog.addConfirmListener(event -> navigateToView("/visaB132"));
                 button = new Button(Labels.DOCUMENT_TYPE_VISA_B132);
     		}else
-        		if(documentType.equals(Constants.VISA_B133)) {
-        			dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B133);
-                    dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-                    dialog.add(visaRequirements());
-                    dialog.setConfirmButtonTheme("success primary");
-        			
-        			dialog.addConfirmListener(event -> navigateToView("/visaB133"));
-                    button = new Button(Labels.DOCUMENT_TYPE_VISA_B133);
-        		}else {
+        		 {
         			dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B17);
                     dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
                     dialog.add(visaRequirements());
@@ -450,6 +443,51 @@ public class AgendarView extends VerticalLayout {
         			dialog.addConfirmListener(event -> navigateToView("/visaB17"));
                     button = new Button(Labels.DOCUMENT_TYPE_VISA_B17);
         		}
+		        		
+        
+        dialog.setWidth("50%");
+        
+        button.addClickListener(event -> {
+            dialog.open();
+        });
+
+        div.add(button);
+        
+        return div;
+    }
+	
+	public Component visaExtensionConfirmDialog(String documentType) {
+        HorizontalLayout layout = new HorizontalLayout();
+        Div div = new Div();
+        Button button;
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+
+        ConfirmDialog dialog = new ConfirmDialog();
+
+        dialog.setCancelable(true);
+        dialog.setCancelText(Constants.CANCEL);
+        dialog.setCancelButtonTheme("error primary");
+        dialog.setConfirmText(Constants.REQUEST_DOCUMENT);
+        
+        if(documentType.equals(Constants.VISA_B21)) {
+        	dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B21);
+            dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+            dialog.add(visaExtensionB21Requirements());
+            dialog.setConfirmButtonTheme("success primary");
+            
+            dialog.addConfirmListener(event -> navigateToView("/visaB21"));
+            button = new Button(Labels.DOCUMENT_TYPE_VISA_B21);
+        }else
+        {
+			dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B17);
+            dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+            dialog.add(visaRequirements());
+            dialog.setConfirmButtonTheme("success primary");
+			
+			dialog.addConfirmListener(event -> navigateToView("/visaB17"));
+            button = new Button(Labels.DOCUMENT_TYPE_VISA_B17);
+		}
 		        		
         
         dialog.setWidth("50%");
@@ -565,6 +603,22 @@ public class AgendarView extends VerticalLayout {
         ListItem item1 = new ListItem(Labels.DOCUMENT_REQUIREMENT_CONTACT_EMBASSY);
         
         unorderedList.add(item1);
+        
+        return unorderedList;
+	}
+	
+	private Component visaExtensionB21Requirements() {
+		UnorderedList unorderedList = new UnorderedList();
+        
+        ListItem item1 = new ListItem(Labels.DOCUMENT_REQUIREMENT_INVESTMENT_PROOF);
+        ListItem item2 = new ListItem(Labels.DOCUMENT_REQUIREMENT_ACCOMMODATION_PROOF);
+        ListItem item3 = new ListItem(Labels.DOCUMENT_REQUIREMENT_INSS_CERTIFICATE);
+        ListItem item4 = new ListItem(Labels.DOCUMENT_REQUIREMENT_REQUEST_LETTER);
+        ListItem item5 = new ListItem(Labels.DOCUMENT_REQUIREMENT_PASSPORT_COPY);
+        ListItem item6 = new ListItem(Labels.DOCUMENT_REQUIREMENT_COPY_PREVIOUS_INVEST_VISA);
+        ListItem item7 = new ListItem(Labels.DOCUMENT_REQUIREMENT_CRIMINAL_RECORD_OPTIONAL);
+        
+        unorderedList.add(item1,item2,item3,item4,item5,item6,item7);
         
         return unorderedList;
 	}

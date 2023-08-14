@@ -1,41 +1,54 @@
 package com.service.booking.app.views.visa;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.service.booking.app.constants.Constants;
 import com.service.booking.app.constants.Labels;
+import com.service.booking.app.constants.Notifications;
 import com.service.booking.app.data.entity.Booking;
+import com.service.booking.app.data.entity.BookingLimit;
 import com.service.booking.app.data.entity.Country;
 import com.service.booking.app.data.entity.CountryCode;
 import com.service.booking.app.data.entity.District;
 import com.service.booking.app.data.entity.Document;
+import com.service.booking.app.data.entity.Family;
 import com.service.booking.app.data.entity.GeneralData;
 import com.service.booking.app.data.entity.IdentityDocument;
 import com.service.booking.app.data.entity.Location;
 import com.service.booking.app.data.entity.Modality;
 import com.service.booking.app.data.entity.Nationality;
+import com.service.booking.app.data.entity.Passport;
 import com.service.booking.app.data.entity.Province;
 import com.service.booking.app.data.entity.Service;
 import com.service.booking.app.data.entity.ServiceFee;
 import com.service.booking.app.data.entity.Status;
+import com.service.booking.app.data.service.BookingLimitService;
 import com.service.booking.app.data.service.BookingService;
 import com.service.booking.app.data.service.CountryCodeService;
 import com.service.booking.app.data.service.CountryService;
 import com.service.booking.app.data.service.DistrictService;
 import com.service.booking.app.data.service.DocumentService;
+import com.service.booking.app.data.service.EmailReportService;
+import com.service.booking.app.data.service.FamilyService;
 import com.service.booking.app.data.service.GeneralDataService;
 import com.service.booking.app.data.service.IdentityDocumentService;
 import com.service.booking.app.data.service.LocationService;
 import com.service.booking.app.data.service.ModalityService;
 import com.service.booking.app.data.service.NationalityService;
+import com.service.booking.app.data.service.PassportService;
 import com.service.booking.app.data.service.ProvinceService;
 import com.service.booking.app.data.service.ServFeeService;
 import com.service.booking.app.data.service.ServService;
 import com.service.booking.app.data.service.StatusService;
+import com.service.booking.app.http.controller.NotificationManager;
 import com.service.booking.app.utils.AlphanumericGenerator;
 import com.service.booking.app.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -81,7 +94,6 @@ public class VisaB133View extends VerticalLayout {
 	
 	private final ServService servService;
 	private final BookingService bookingService;
-	private final IdentityDocumentService identityDocService;
 	private final StatusService statusService;
 	private final DocumentService documentService;
 	private final ModalityService modalityService;
@@ -93,26 +105,35 @@ public class VisaB133View extends VerticalLayout {
 	private final LocationService locationService;
 	private final CountryCodeService countryCodeService;
 	private final GeneralDataService generalDataService;
+	private final FamilyService familyService;
+	private final BookingLimitService bookingLimitService;
+	private final PassportService passportService;
+	private final EmailReportService emailSendingReportService;
+
+	private NotificationManager notificationManager;
 	
 	private Status activeStatus;
 	private Status aprovedStatus;
-	private IdentityDocument identityDoc;
+	private Passport passaport;
 	private Booking booking;
 	private Binder<Booking> binder;
+	private List<BookingLimit> bookingLimit;
 	
 	private ComboBox<Document> documentType;
 	private ComboBox<Modality> modality;
 	private ComboBox<ServiceFee> serviceFee;
 	private ComboBox<Country> countryOfBirthReq;
+	private ComboBox<GeneralData> gender;
+	private ComboBox<GeneralData> maritalStatus;
 	private ComboBox<Nationality> nationality;
 	private ComboBox<Nationality> passportNationality;
+	private ComboBox<GeneralData> lengthOfStayMoz;
 	private ComboBox<Province> provinceAddress;
 	private ComboBox<District> districtAddress;
 	private ComboBox<Location> location;
 	private ComboBox<CountryCode> countryCode;
-	private ComboBox<GeneralData> gender;
-	private ComboBox<GeneralData> maritalStatus;
-	private ComboBox<GeneralData> lengthOfStayMoz;
+	
+	private ComboBox<Nationality> familyNationality1, familyNationality2, familyNationality3, familyNationality4;
 	
 	private RadioButtonGroup<String> haveEverBeenToMoz;
 	private RadioButtonGroup<String> haveBeenResidentMoz;
@@ -121,24 +142,27 @@ public class VisaB133View extends VerticalLayout {
 	
 	private TextField surnameReq;
 	private TextField nameReq;
+	private TextField singleName;
 	private TextField idNumber;
 	private TextField localOfIssue;
 	private TextField phoneNumberReq;
-	private TextField singleName;
 	private TextField professionReq;
 	private TextField positionReq;
 	private TextField companyReq;
 	private TextField cityAddress;
+	private TextField familyName1, familyName2, familyName3, familyName4;
+	private TextField familyRelationship1, familyRelationship2, familyRelationship3, familyRelationship4;
+	private TextField familyAddress1, familyAddress2, familyAddress3, familyAddress4;
 	
 	private EmailField emailReq;
 	
 	private TextArea neighborhoodReq;
+	private TextArea reasonForLeavingMoz;
+	private TextArea companiesWorkedFor;
 	private TextArea streetAddress;
 	private TextArea hotelReservation;
 	private TextArea reasonForTravel;
 	private TextArea note;
-	private TextArea reasonForLeavingMoz;
-	private TextArea companiesWorkedFor;
 	
 	int ngHoodCharLimit = 140;
 	int streetCharLimit = 140;
@@ -149,11 +173,11 @@ public class VisaB133View extends VerticalLayout {
 	int cpWorkedFor = 140;
 	
 	private DatePicker birthdateReq;
-	private DatePicker idIssueDate;
+	private DatePicker idIssue;
 	private DatePicker idValidate;
-	private DatePicker dateToSchedule;
 	private DatePicker departureDate;
 	private DatePicker residentDepartureDate;
+	private DatePicker dateToSchedule;
 	
 	MemoryBuffer buffer;
     Upload uploadIDDoc;
@@ -179,11 +203,12 @@ public class VisaB133View extends VerticalLayout {
 	public VisaB133View(ServService servService, BookingService bookingService, IdentityDocumentService identityDocService, 
 			StatusService statusService, DocumentService documentService, ModalityService modalityService, ServFeeService servFeeService,
 			CountryService countryService, NationalityService nationalityService, ProvinceService provinceService,
-			DistrictService districtService, LocationService locationService, CountryCodeService countryCodeService, GeneralDataService generalDataService) {
+			DistrictService districtService, LocationService locationService, CountryCodeService countryCodeService, 
+			GeneralDataService generalDataService, FamilyService familyService, BookingLimitService bookingLimitService,
+			PassportService passportService, EmailReportService emailSendingReportService) {
 
 		this.servService = servService;
 		this.bookingService = bookingService;
-		this.identityDocService = identityDocService;
 		this.statusService = statusService;
 		this.documentService = documentService;
 		this.modalityService = modalityService;
@@ -195,10 +220,15 @@ public class VisaB133View extends VerticalLayout {
 		this.locationService = locationService;
 		this.countryCodeService = countryCodeService;
 		this.generalDataService = generalDataService;
+		this.familyService = familyService;
+		this.bookingLimitService = bookingLimitService;
+		this.passportService = passportService;
+		this.emailSendingReportService = emailSendingReportService;
 		
 		setAlignItems(Alignment.CENTER);
 		
 		createVariables();
+		createService();
 		createStatus();
 		createDocumentType();
 		createModality();
@@ -211,6 +241,7 @@ public class VisaB133View extends VerticalLayout {
 		createGender();
 		createMaritalStatus();
 		createLengthOfStayMoz();
+		createFamilyNationality();
 		createBinder();
 	    add(createFormLayout());
 	}
@@ -239,7 +270,7 @@ public class VisaB133View extends VerticalLayout {
 		
 		FormLayout formLayout = new FormLayout();
 		Hr hr = new Hr(), hr1 = new Hr(), hr2 = new Hr(), hr3 = new Hr(), hr4 = new Hr(), hr5 = new Hr(), hr6 = new Hr(), hr7 = new Hr(),
-				hr8 = new Hr();
+				hr8 = new Hr(), hr9 = new Hr(), hr10 = new Hr(), hr11 = new Hr(), hr12 = new Hr();
 		H4 document = new H4(Labels.DOCUMENT);
 		H4 citizenAddress = new H4(Labels.ADDRESS);
 		H4 personalData = new H4(Labels.PERSONAL_DATA);
@@ -248,19 +279,29 @@ public class VisaB133View extends VerticalLayout {
 		H4 idDocument = new H4(Labels.ID_DOCUMENT);
 		H4 profession = new H4(Labels.PROFESSION);
 		H4 accommodationAddress = new H4(Labels.ACCOMMODATION_ADDRESS);
+		H4 family = new H4(Labels.FAMILY_SECTION);
 		
-		formLayout.add(hr, document, documentType, modality, serviceFee, hr1, personalData, nameReq, surnameReq, birthdateReq, singleName);
-		formLayout.add(countryOfBirthReq, gender, maritalStatus, nationality, hr6, idDocument,idNumber, idIssueDate, idValidate, passportNationality);
-		formLayout.add(hr7, profession, professionReq, positionReq, companyReq);
+		formLayout.add(hr, document, documentType, modality, serviceFee, hr1, personalData, nameReq, surnameReq, birthdateReq ,singleName);
+		formLayout.add(countryOfBirthReq,gender, maritalStatus, nationality, hr6, idDocument,idNumber, idIssue, idValidate, passportNationality);
+		formLayout.add(hr7, profession ,professionReq ,positionReq ,companyReq);
 		formLayout.add(hr2);
 		formLayout.add(citizenAddress);
-		formLayout.add(neighborhoodReq,createRadioButtonHaveEverBeenToMoz(), reasonForLeavingMoz,departureDate, companiesWorkedFor,
-				createRadioButtonHaveBeenResidentMoz(), lengthOfStayMoz, residentDepartureDate,hr8);
+		formLayout.add(neighborhoodReq,createRadioButtonHaveEverBeenToMoz(),reasonForLeavingMoz,departureDate, companiesWorkedFor,
+				createRadioButtonHaveBeenResidentMoz(), lengthOfStayMoz, residentDepartureDate, hr8);
 		formLayout.add(accommodationAddress);
 		formLayout.add(provinceAddress, districtAddress, cityAddress, streetAddress, hotelReservation);
+		formLayout.add(hr9);
+		formLayout.add(family);
+		formLayout.add(familyName1, familyNationality1, familyRelationship1, familyAddress1);
+		formLayout.add(hr10);
+		formLayout.add(familyName2, familyNationality2, familyRelationship2, familyAddress2);
+		formLayout.add(hr11);
+		formLayout.add(familyName3, familyNationality3, familyRelationship3, familyAddress3);
+		formLayout.add(hr12);
+		formLayout.add(familyName4, familyNationality4, familyRelationship4, familyAddress4);
 		formLayout.add(hr3);
 		formLayout.add(scheduling);
-		formLayout.add(dateToSchedule, location, reasonForTravel);
+		formLayout.add(location, dateToSchedule, reasonForTravel);
 		formLayout.add(hr4);
 		formLayout.add(contacts);
 		formLayout.add(countryCode);
@@ -277,6 +318,7 @@ public class VisaB133View extends VerticalLayout {
 		idDocument.getStyle().setTextAlign(Style.TextAlign.CENTER);
 		profession.getStyle().setTextAlign(Style.TextAlign.CENTER);
 		accommodationAddress.getStyle().setTextAlign(Style.TextAlign.CENTER);
+		family.getStyle().setTextAlign(Style.TextAlign.CENTER);
 		
 		formLayout.setColspan(hr, 4);
 		formLayout.setColspan(document, 4);
@@ -288,12 +330,17 @@ public class VisaB133View extends VerticalLayout {
 		formLayout.setColspan(idDocument, 4);
 		formLayout.setColspan(profession, 4);
 		formLayout.setColspan(accommodationAddress, 4);
+		formLayout.setColspan(family, 4);
 		formLayout.setColspan(neighborhoodReq, 2);
-		formLayout.setColspan(streetAddress, 2);
 		formLayout.setColspan(reasonForLeavingMoz, 2);
-		formLayout.setColspan(reasonForTravel, 4);
-		formLayout.setColspan(note, 1);
 		formLayout.setColspan(companiesWorkedFor, 2);
+		formLayout.setColspan(streetAddress, 2);
+		formLayout.setColspan(reasonForTravel, 4);
+		formLayout.setColspan(familyAddress1, 2);
+		formLayout.setColspan(familyAddress2, 2);
+		formLayout.setColspan(familyAddress3, 2);
+		formLayout.setColspan(familyAddress4, 2);
+		formLayout.setColspan(note, 1);
 		formLayout.setColspan(location, 2);
 		formLayout.setColspan(hr2, 4);
 		formLayout.setColspan(hr3, 4);
@@ -302,12 +349,14 @@ public class VisaB133View extends VerticalLayout {
 		formLayout.setColspan(hr6, 4);
 		formLayout.setColspan(hr7, 4);
 		formLayout.setColspan(hr8, 4);
+		formLayout.setColspan(hr9, 4);
+		formLayout.setColspan(hr10, 4);
+		formLayout.setColspan(hr11, 4);
+		formLayout.setColspan(hr12, 4);
 		
 		formCard = new Div();
-		//formCard.getStyle().set("text-transform", "uppercase");
 	    formCard.addClassName("card-forms");
 	    formCard.setWidth("80%");
-	    
 	    // Configure the columns and responsive behavior
 	    formLayout.setResponsiveSteps(
                 new ResponsiveStep("0px", 1),
@@ -326,43 +375,50 @@ public class VisaB133View extends VerticalLayout {
 	}
 	
 	private void createDocumentType() {
-		List<Document> documentTypeItems = documentService.findAll();
+		List<Document> documentTypeItems = documentService.findForeingDocs(Constants.DOCUMENT_TYPE_CATEGORY);
 		documentType.setItems(documentTypeItems);
-		//documentType.setValue(documentTypeItems.get(0));
 		documentType.setItemLabelGenerator(Document::getName);
+		documentType.setValue(documentTypeItems.get(0));
 	}
 	
 	private void createModality() {
-		List<Modality> modalityItems = modalityService.findAll();
+		List<Modality> modalityItems = modalityService.findModalityByCategory(Constants.FOREIGN);
 		modality.setItems(modalityItems);
-		//modality.setValue(modalityItems.get(0));
 		modality.setItemLabelGenerator(Modality::getName);
 	}
 	
 	private void createServiceFee() {
-		List<ServiceFee> serviceFeeItems = servFeeService.findAll();
+		List<ServiceFee> serviceFeeItems = servFeeService.findForeignServiceFee();
 		serviceFee.setItems(serviceFeeItems);
-		//serviceFee.setValue(serviceFeeItems.get(0));
 		serviceFee.setItemLabelGenerator(ServiceFee::getName);
+		serviceFee.setValue(serviceFeeItems.get(0));
 	}
 	
 	private void createCountry() {
 		List<Country> countryItems = countryService.findAll();
 		countryOfBirthReq.setItems(countryItems);
-		countryOfBirthReq.setItemLabelGenerator(Country::getName);
+		countryOfBirthReq.setItemLabelGenerator(Country::getName);		
 	}
 	
 	private void createNationality() {
 		List<Nationality> nationalityItems = nationalityService.findAll();
-		/*Optional<Nationality> moz = nationalityItems.stream().filter(element -> element.getCountryCode() == Constants.COUNTRY_CODE_MZ).findFirst();
-		nationality.setItems(nationalityItems);
-		if(moz != null) {
-			nationality.setValue(moz.get());	
-		}*/
 		nationality.setItems(nationalityItems);
 		nationality.setItemLabelGenerator(Nationality::getName);
+
 		passportNationality.setItems(nationalityItems);
 		passportNationality.setItemLabelGenerator(Nationality::getName);
+	}
+	
+	private void createGender() {
+		List<GeneralData> genderItems = generalDataService.findGeneralDataByCategory(Constants.GENDER); 
+		gender.setItems(genderItems);
+		gender.setItemLabelGenerator(GeneralData::getName);
+	}
+	
+	private void createMaritalStatus() {
+		List<GeneralData> maritalStatusItems = generalDataService.findGeneralDataByCategory(Constants.MARITAL_STATUS);
+		maritalStatus.setItems(maritalStatusItems);
+		maritalStatus.setItemLabelGenerator(GeneralData::getName);
 	}
 	
 	private void createProvince() {
@@ -389,24 +445,30 @@ public class VisaB133View extends VerticalLayout {
 		aprovedStatus = statusService.getStatusByCode("AP");
 	}
 	
-	private void createGender() {
-		List<GeneralData> genderItems = generalDataService.findGeneralDataByCategory(Constants.GENDER); 
-		gender.setItems(genderItems);
-		gender.setItemLabelGenerator(GeneralData::getName);
-	}
-	
-	private void createMaritalStatus() {
-		List<GeneralData> maritalStatusItems = generalDataService.findGeneralDataByCategory(Constants.MARITAL_STATUS);
-		maritalStatus.setItems(maritalStatusItems);
-		maritalStatus.setItemLabelGenerator(GeneralData::getName);
-	}
-	
 	private void createLengthOfStayMoz() {
 		List<GeneralData> lengthOfStayItems = generalDataService.findGeneralDataByCategory(Constants.PERIOD_OF_STAY);
 		lengthOfStayMoz.setItems(lengthOfStayItems);
 		lengthOfStayMoz.setItemLabelGenerator(GeneralData::getName);
 	}
-	/*private void createUploadIDDoc() {
+	
+	private void createFamilyNationality() {
+		List<Nationality> nationalityItems = nationalityService.findAll();
+		
+		familyNationality1.setItems(nationalityItems);
+		familyNationality1.setItemLabelGenerator(Nationality::getName);
+		
+		familyNationality2.setItems(nationalityItems);
+		familyNationality2.setItemLabelGenerator(Nationality::getName);
+		
+		familyNationality3.setItems(nationalityItems);
+		familyNationality3.setItemLabelGenerator(Nationality::getName);
+		
+		familyNationality4.setItems(nationalityItems);
+		familyNationality4.setItemLabelGenerator(Nationality::getName);
+		
+	}
+	/*
+	private void createUploadIDDoc() {
 		
 		UploadExamplesI18N i18n = new UploadExamplesI18N();
         i18n.getAddFiles().setOne("Upload Report...");
@@ -424,7 +486,8 @@ public class VisaB133View extends VerticalLayout {
 	
 	private void createVariables() {
 		this.booking = new Booking();
-		this.identityDoc = new IdentityDocument();
+		new IdentityDocument();
+		this.passaport = new Passport();
 		this.documentType = new ComboBox<Document>(Labels.DOCUMENT_TYPE);
 		this.documentType.setHelperText(Labels.SELECT_DOCUMENT_TYPE_HELPER_TEXT);
 		
@@ -433,11 +496,11 @@ public class VisaB133View extends VerticalLayout {
 		
 		this.serviceFee = new ComboBox<ServiceFee>(Labels.SERVICE_FEE);
 		this.serviceFee.setHelperText(Labels.SELECT_SERVICE_FEE_HELPER_TEXT);
-		
+		 
 		this.surnameReq = new TextField(Labels.SURNAME);
 		this.surnameReq.setHelperText(Labels.TYPE_YOUR_SURNAME);
 		this.surnameReq.setClearButtonVisible(true);
-		
+
 		this.nameReq = new TextField(Labels.FULLNAME);
 		this.nameReq.setHelperText(Labels.TYPE_YOUR_FULLNAME);
 		this.nameReq.setClearButtonVisible(true);
@@ -445,6 +508,10 @@ public class VisaB133View extends VerticalLayout {
 		this.birthdateReq = new DatePicker(Labels.BITHDATE);
 		this.birthdateReq.setHelperText(Labels.TYPE_YOUR_BITHDATE);
 		this.birthdateReq.setClearButtonVisible(true);
+
+        this.singleName = new TextField(Labels.SINGLE_NAME);
+		this.singleName.setHelperText(Labels.TYPE_YOUR_SINGLE_NAME);
+		this.singleName.setClearButtonVisible(true);
 		
 		this.idNumber = new TextField(Labels.PASSPORT_DOC_NUMBER);
 		this.idNumber.setHelperText(Labels.TYPE_YOUR_PASSAPORT_DOC_NUMBER);
@@ -456,10 +523,10 @@ public class VisaB133View extends VerticalLayout {
 		this.idValidate.setRequired(true);
 		this.idValidate.setClearButtonVisible(true);
 		
-		this.idIssueDate = new DatePicker(Labels.IDENTITY_DOC_ISSUE_DATE);
-		this.idIssueDate.setHelperText(Labels.TYPE_YOUR_PASSAPORT_DOC_NUMBER);
-		this.idIssueDate.setRequired(true);
-		this.idIssueDate.setClearButtonVisible(true);
+		this.idIssue = new DatePicker(Labels.IDENTITY_DOC_ISSUE_DATE);
+		this.idIssue.setHelperText(Labels.TYPE_YOUR_PASSAPORT_DOC_NUMBER);
+		this.idIssue.setRequired(true);
+		this.idIssue.setClearButtonVisible(true);
 		
 		this.localOfIssue = new TextField(Labels.LOCAL_OF_ISSUE);
 		this.localOfIssue.setHelperText(Labels.TYPE_YOUR_LOCAL_OF_ISSUE);
@@ -469,13 +536,33 @@ public class VisaB133View extends VerticalLayout {
 		this.countryOfBirthReq = new ComboBox<Country>(Labels.COUNTRY_OF_BIRTH);
 		this.countryOfBirthReq.setHelperText(Labels.SELECT_COUNTRY_OF_BIRTH_HELPER_TEXT);
 		
+        this.gender = new ComboBox<GeneralData>(Labels.GENDER);
+        this.gender.setHelperText(Labels.GENDER_HELPER_TEXT);
+        this.gender.setRequired(true);
+        
+        this.maritalStatus = new ComboBox<GeneralData>(Labels.MARITAL_STATUS);
+        this.maritalStatus.setHelperText(Labels.MARITAL_STATUS_HELPER_TEXT);
+        this.maritalStatus.setRequired(true);
+
         this.nationality = new ComboBox<Nationality>(Labels.NATIONALITY);
         this.nationality.setHelperText(Labels.SELECT_YOUR_NATIONALITY);
-
+                
         this.passportNationality = new ComboBox<Nationality>(Labels.PASSPORT_NATIONALITY);
         this.passportNationality.setHelperText(Labels.SELECT_YOUR_PASSPORT_NATIONALITY);
         
-		this.neighborhoodReq = new TextArea(Labels.PERMANENT_RESIDENTIAL_ADDRESS);
+        this.professionReq = new TextField(Labels.PROFESSION_OCCUPATION);
+		this.professionReq.setHelperText(Labels.TYPE_YOUR_PROFESSION_OCCUPATION);
+		this.professionReq.setClearButtonVisible(true);
+
+        this.positionReq = new TextField(Labels.POSITION_HELD);
+		this.positionReq.setHelperText(Labels.TYPE_YOUR_POSITION_HELD);
+		this.positionReq.setClearButtonVisible(true);
+
+        this.companyReq = new TextField(Labels.COMPANY_OR_ORGANIZATION);
+		this.companyReq.setHelperText(Labels.TYPE_YOUR_COMPANY_OR_ORGANIZATION);
+		this.companyReq.setClearButtonVisible(true);
+
+		this.neighborhoodReq = new TextArea(Labels.NEIGHBORHOOD);
 		this.neighborhoodReq.setMaxLength(ngHoodCharLimit);
 		this.neighborhoodReq.setValueChangeMode(ValueChangeMode.EAGER);
 		this.neighborhoodReq.setHelperText("0/"+ngHoodCharLimit+" "+Labels.OPTIONAL);
@@ -484,6 +571,33 @@ public class VisaB133View extends VerticalLayout {
             e.getSource()
                     .setHelperText(e.getValue().length() + "/" + ngHoodCharLimit+" "+Labels.OPTIONAL);
         });
+		
+		this.reasonForLeavingMoz = new TextArea(Labels.REASON_TO_LEAVE_MOZ);
+		this.reasonForLeavingMoz.setMaxLength(rfLeavingMozCharLimit);
+		this.reasonForLeavingMoz.setValueChangeMode(ValueChangeMode.EAGER);
+		this.reasonForLeavingMoz.setHelperText("0/"+rfLeavingMozCharLimit+" "+Labels.OPTIONAL);
+		this.reasonForLeavingMoz.setClearButtonVisible(true);
+		this.reasonForLeavingMoz.addValueChangeListener(e -> {
+            e.getSource()
+                    .setHelperText(e.getValue().length() + "/" + rfLeavingMozCharLimit+" "+Labels.OPTIONAL);
+        });
+		
+		this.departureDate = new DatePicker(Labels.DEPARTURE_DATE);
+		this.departureDate.setHelperText(Labels.TYPE_YOUR_DEPARTURE_DATE);
+		this.departureDate.setClearButtonVisible(true);
+		
+        this.companiesWorkedFor = new TextArea(Labels.COMPANIES_WORKED_FOR);
+        this.companiesWorkedFor.setMaxLength(cpWorkedFor);
+        this.companiesWorkedFor.setValueChangeMode(ValueChangeMode.EAGER);
+        this.companiesWorkedFor.setHelperText("0/"+cpWorkedFor);
+        this.companiesWorkedFor.setClearButtonVisible(true);
+        this.companiesWorkedFor.addValueChangeListener(e -> {
+            e.getSource()
+                    .setHelperText(e.getValue().length() + "/" + cpWorkedFor);
+        });      
+
+        this.provinceAddress = new ComboBox<Province>(Labels.PROVINCE);
+        this.provinceAddress.setHelperText(Labels.SELECT_YOUR_PROVINCE);
 		
 		this.streetAddress = new TextArea(Labels.STREET_ADDRESS);
 		this.streetAddress.setMaxLength(streetCharLimit);
@@ -505,16 +619,15 @@ public class VisaB133View extends VerticalLayout {
                     .setHelperText(e.getValue().length() + "/" + hotelRsCharLimit+" "+Labels.OPTIONAL);
         });
 		
-        this.reasonForTravel = new TextArea(Labels.REASON_FOR_ENTRY_IN_MOZ);
+		this.reasonForTravel = new TextArea(Labels.REASON_FOR_TRAVEL);
         this.reasonForTravel.setMaxLength(rfTravelCharLimit);
         this.reasonForTravel.setValueChangeMode(ValueChangeMode.EAGER);
-        this.reasonForTravel.setHelperText("0/"+rfTravelCharLimit+" "+Labels.REASON_FOR_ENTRY_IN_MOZ_HELPER_TEXT);
+        this.reasonForTravel.setHelperText("0/"+rfTravelCharLimit+" "+Labels.REASON_FOR_TRAVEL_HELPER_TEXT);
         this.reasonForTravel.setClearButtonVisible(true);
         this.reasonForTravel.addValueChangeListener(e -> {
             e.getSource()
                     .setHelperText(e.getValue().length() + "/" + rfTravelCharLimit+" "+Labels.REASON_FOR_TRAVEL_HELPER_TEXT);
         });
-        
         
         this.note = new TextArea(Labels.NOTE);
         this.note.setMaxLength(noteCharLimit);
@@ -526,29 +639,32 @@ public class VisaB133View extends VerticalLayout {
                     .setHelperText(e.getValue().length() + "/" + noteCharLimit+" "+Labels.OPTIONAL);
         });
         
-        this.companiesWorkedFor = new TextArea(Labels.COMPANIES_WORKED_FOR);
-        this.companiesWorkedFor.setMaxLength(cpWorkedFor);
-        this.companiesWorkedFor.setValueChangeMode(ValueChangeMode.EAGER);
-        this.companiesWorkedFor.setHelperText("0/"+cpWorkedFor);
-        this.companiesWorkedFor.setClearButtonVisible(true);
-        this.companiesWorkedFor.addValueChangeListener(e -> {
-            e.getSource()
-                    .setHelperText(e.getValue().length() + "/" + cpWorkedFor);
-        });
-        
-        this.dateToSchedule = new DatePicker(Labels.DATE_TO_SCHEDULE);
+       this.dateToSchedule = new DatePicker(Labels.DATE_TO_SCHEDULE);
+        this.dateToSchedule.setEnabled(false);
+        // Add a value change listener with the custom validator
         this.dateToSchedule.setHelperText(Labels.DATE_TO_SCHEDULE_HELPER_TEXT);
         this.dateToSchedule.setClearButtonVisible(true);
-        
-        this.provinceAddress = new ComboBox<Province>(Labels.PROVINCE);
-        this.provinceAddress.setHelperText(Labels.SELECT_YOUR_PROVINCE);
+        // Add a value change listener with the custom validator
+        dateToSchedule.addValueChangeListener(event -> {
+            LocalDate selectedDate = event.getValue();
+            if (selectedDate != null && !isWorkingDay(selectedDate)) {
+                Notification notification = new Notification(Labels.SELECT_ONLY_WORKING_DAYS, 7000,
+                        Position.TOP_CENTER);
+                notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                notification.open();
+                dateToSchedule.clear();
+            }else
+            	if(location.getValue() != null && dateToSchedule.getValue() != null) {
+            		maximumDailyCapacityReached();
+            	}
+        });
         
         this.provinceAddress.addValueChangeListener(event -> {
             Province selectedValue = event.getValue();
             // Update options of targetComboBox based on selectedValue
             // You can fetch the options from a database or a predefined list
             List<District> options = districtService.findDistrictByProvinceId(selectedValue.getProvinceId());
-            System.out.println(options.size());
+            
             if(options != null && options.size() > 0) {
             	districtAddress.clear();
                 districtAddress.setItems(options);
@@ -565,26 +681,55 @@ public class VisaB133View extends VerticalLayout {
             
         });
         
-        this.districtAddress = new ComboBox<District>(Labels.DISTRICT);
+        this.districtAddress = new ComboBox<District>(Labels.CITY_OR_DISTRICT);
         this.districtAddress.setEnabled(false);
 
 		this.cityAddress = new TextField(Labels.CITY);
 		this.cityAddress.setHelperText(Labels.TYPE_YOUR_CITY);
 		this.cityAddress.setClearButtonVisible(true);
-        
-        this.location = new ComboBox<Location>(Labels.PLACE_TO_SCHEDULE);
+		
+		this.location = new ComboBox<Location>(Labels.PLACE_TO_SCHEDULE);
         this.location.setHelperText(Labels.PLACE_TO_SCHEDULE_HELPER_TEXT);
+        this.location.addValueChangeListener(e -> {
+        	if(location.getValue() != null)
+        		dateToSchedule.setEnabled(true);
+        	else {
+        		dateToSchedule.setEnabled(false);
+        		dateToSchedule.clear();
+        	}
+        });
 
         this.countryCode = new ComboBox<CountryCode>(Labels.COUNTRY_CODE);
         this.countryCode.setHelperText(Labels.SELECT_YOUR_COUNTRY_CODE);
+        this.countryCode.addValueChangeListener(e -> {
+        	if(this.countryCode.getValue() != null && this.countryCode.getValue().getName().equals("Mozambique(+258)"))
+        	{
+                this.phoneNumberReq.setMinLength(9);
+                this.phoneNumberReq.setMaxLength(9);
+        	}else {
+                this.phoneNumberReq.setMinLength(5);
+                this.phoneNumberReq.setMaxLength(18);
+        	}
+        });
         
         this.phoneNumberReq = new TextField(Labels.PHOME_NUMBER);
         this.phoneNumberReq.setHelperText(Labels.TYPE_YOUR_PHONE_NUMBER);
-        this.phoneNumberReq .setPlaceholder("82XXXXXXX");
         this.phoneNumberReq.setPrefixComponent(VaadinIcon.PHONE.create());
         this.phoneNumberReq.setAllowedCharPattern("[0-9]");
-        this.phoneNumberReq.setMinLength(5);
-        this.phoneNumberReq.setMaxLength(18);
+        this.phoneNumberReq.addValueChangeListener(e -> {
+        	if(this.countryCode.getValue() != null && this.countryCode.getValue().getName().equals("Mozambique(+258)"))
+        	{	String number = this.phoneNumberReq.getValue();
+        	
+        		if(!number.startsWith("82") && !number.startsWith("83") && !number.startsWith("84") && !number.startsWith("85")
+        				&& !number.startsWith("86") && !number.startsWith("87")) {
+        			Notification notification = Notification.show(Labels.TYPE_VALID_PHONE_NUMBER_258, 5000,
+                            Position.TOP_CENTER);
+                    notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    
+                    phoneNumberReq.clear();
+        		}
+        	}
+        });
         this.phoneNumberReq.setClearButtonVisible(true);
         
         this.emailReq = new EmailField(Labels.EMAIL);
@@ -593,44 +738,6 @@ public class VisaB133View extends VerticalLayout {
         this.emailReq.setClearButtonVisible(true);
         this.emailReq.setPrefixComponent(VaadinIcon.ENVELOPE.create());
         
-        this.singleName = new TextField(Labels.SINGLE_NAME);
-		this.singleName.setHelperText(Labels.TYPE_YOUR_SINGLE_NAME);
-		this.singleName.setClearButtonVisible(true);
-
-        this.gender = new ComboBox<GeneralData>(Labels.GENDER);
-        this.gender.setHelperText(Labels.GENDER_HELPER_TEXT);
-        this.gender.setRequired(true);
-        
-        this.maritalStatus = new ComboBox<GeneralData>(Labels.MARITAL_STATUS);
-        this.maritalStatus.setHelperText(Labels.MARITAL_STATUS_HELPER_TEXT);
-        this.maritalStatus.setRequired(true);
-        
-        this.professionReq = new TextField(Labels.PROFESSION_OCCUPATION);
-		this.professionReq.setHelperText(Labels.TYPE_YOUR_PROFESSION_OCCUPATION);
-		this.professionReq.setClearButtonVisible(true);
-
-        this.positionReq = new TextField(Labels.POSITION_HELD);
-		this.positionReq.setHelperText(Labels.TYPE_YOUR_POSITION_HELD);
-		this.positionReq.setClearButtonVisible(true);
-
-        this.companyReq = new TextField(Labels.COMPANY_OR_ORGANIZATION);
-		this.companyReq.setHelperText(Labels.TYPE_YOUR_COMPANY_OR_ORGANIZATION);
-		this.companyReq.setClearButtonVisible(true);
-		
-		this.reasonForLeavingMoz = new TextArea(Labels.REASON_TO_LEAVE_MOZ);
-		this.reasonForLeavingMoz.setMaxLength(rfLeavingMozCharLimit);
-		this.reasonForLeavingMoz.setValueChangeMode(ValueChangeMode.EAGER);
-		this.reasonForLeavingMoz.setHelperText("0/"+rfLeavingMozCharLimit+" "+Labels.OPTIONAL);
-		this.reasonForLeavingMoz.setClearButtonVisible(true);
-		this.reasonForLeavingMoz.addValueChangeListener(e -> {
-            e.getSource()
-                    .setHelperText(e.getValue().length() + "/" + rfLeavingMozCharLimit+" "+Labels.OPTIONAL);
-        });
-		
-		this.departureDate = new DatePicker(Labels.DEPARTURE_DATE);
-		this.departureDate.setHelperText(Labels.TYPE_YOUR_DEPARTURE_DATE);
-		this.departureDate.setClearButtonVisible(true);
-		
         this.lengthOfStayMoz = new ComboBox<GeneralData>(Labels.PERIOD_OF_STAY);
         this.lengthOfStayMoz.setHelperText(Labels.MARITAL_STATUS_HELPER_TEXT);
         this.lengthOfStayMoz.setRequired(true);
@@ -638,7 +745,48 @@ public class VisaB133View extends VerticalLayout {
         this.residentDepartureDate = new DatePicker(Labels.DEPARTURE_DATE);
         this.residentDepartureDate.setHelperText(Labels.TYPE_YOUR_DEPARTURE_DATE);
         this.residentDepartureDate.setClearButtonVisible(true);
-		
+        
+        this.familyName1 = new TextField(Labels.FULLNAME);
+        this.familyName1.setClearButtonVisible(true);
+
+        this.familyName2 = new TextField(Labels.FULLNAME);
+        this.familyName2.setClearButtonVisible(true);
+
+        this.familyName3 = new TextField(Labels.FULLNAME);
+        this.familyName3.setClearButtonVisible(true);
+
+        this.familyName4 = new TextField(Labels.FULLNAME);
+        this.familyName4.setClearButtonVisible(true);
+        
+        this.familyRelationship1 = new TextField(Labels.FAMILY_RELATIONSHIP);
+        this.familyRelationship1.setClearButtonVisible(true);
+
+        this.familyRelationship2 = new TextField(Labels.FAMILY_RELATIONSHIP);
+        this.familyRelationship2.setClearButtonVisible(true);
+
+        this.familyRelationship3 = new TextField(Labels.FAMILY_RELATIONSHIP);
+        this.familyRelationship3.setClearButtonVisible(true);
+
+        this.familyRelationship4 = new TextField(Labels.FAMILY_RELATIONSHIP);
+        this.familyRelationship4.setClearButtonVisible(true);
+        
+        this.familyAddress1 = new TextField(Labels.FAMILY_ADDRESS);
+        this.familyAddress1.setClearButtonVisible(true);
+
+        this.familyAddress2 = new TextField(Labels.FAMILY_ADDRESS);
+        this.familyAddress2.setClearButtonVisible(true);
+
+        this.familyAddress3 = new TextField(Labels.FAMILY_ADDRESS);
+        this.familyAddress3.setClearButtonVisible(true);
+
+        this.familyAddress4 = new TextField(Labels.FAMILY_ADDRESS);
+        this.familyAddress4.setClearButtonVisible(true);
+        
+        this.familyNationality1 = new ComboBox<Nationality>(Labels.NATIONALITY);
+        this.familyNationality2 = new ComboBox<Nationality>(Labels.NATIONALITY);
+        this.familyNationality3 = new ComboBox<Nationality>(Labels.NATIONALITY);
+        this.familyNationality4 = new ComboBox<Nationality>(Labels.NATIONALITY);
+        
         this.buffer = new MemoryBuffer();
         this.uploadIDDoc = new Upload(buffer);
         uploadIDDoc.setAcceptedFileTypes("application/pdf", ".pdf");
@@ -686,7 +834,7 @@ public class VisaB133View extends VerticalLayout {
 	        haveEverBeenToMoz.setValue(Labels.NO);
 	        return haveEverBeenToMoz;
 	 }
-	 
+	  
 	 private Component createRadioButtonHaveBeenResidentMoz() {
 		 	haveBeenResidentMoz = new RadioButtonGroup<>();
 		 	haveBeenResidentMoz.setLabel(Labels.HAVE_BEEN_RESIDENT_MOZ);
@@ -698,7 +846,15 @@ public class VisaB133View extends VerticalLayout {
 	 
 	 private void createConfirmDialog() {
 		 try {
+			 nameReq.setValue(nameReq.getValue().trim());
+			 surnameReq.setValue(surnameReq.getValue().trim());
+			 idNumber.setValue(idNumber.getValue().trim());
+			 localOfIssue.setValue(localOfIssue.getValue().trim());
+			 reasonForTravel.setValue(reasonForTravel.getValue().trim());
 			 binder.writeBean(booking);
+			 
+			 this.idNumber.isRequiredIndicatorVisible();
+			 this.idNumber.setInvalid(true);
 			 
 			 confirmDialog = new ConfirmDialog();
 			 confirmDialog.setCancelable(true);
@@ -708,8 +864,7 @@ public class VisaB133View extends VerticalLayout {
 			 confirmDialog.setConfirmButton(Labels.CONFIRM_BOOKING_BUTTON, e -> saveBooking());
 	         
 			 confirmDialog.setHeader(Labels.CONFIRM_BOOKING);
-			 //confirmDialog.add(new H4(Labels.BOOKING_CONFIRMATION), new Paragraph());
-			 confirmDialog.add(new H5(Labels.BOOKING_CONFIRMATION+" "+Labels.DOCUMENT_TYPE_PASSPORT_A11));
+			 confirmDialog.add(new H5(Labels.BOOKING_CONFIRMATION+" "+Labels.DOCUMENT_TYPE_VISA_B133));
 			 
 			 UnorderedList unorderedList = new UnorderedList();
 
@@ -721,16 +876,9 @@ public class VisaB133View extends VerticalLayout {
 		        
 		        unorderedList.add(item1, item2, item3, item4);
 		        confirmDialog.add(unorderedList);
-			/* confirmDialog.add(new Paragraph("Nome: "+nameReq.getValue()+" "+surnameReq.getValue()));
-			 confirmDialog.add(new Paragraph("Tipo de Documento: "+documentType.getValue().getName()));
-			 confirmDialog.add(new Paragraph("Data Marcada: "+dateToSchedule.getValue()));
-			 confirmDialog.add(new Paragraph("Local: "+location.getValue().getName()));*/
 			 
 			 confirmDialog.setConfirmButtonTheme("success primary");
 	             
-	             //dialog.addConfirmListener(event -> navigateToView("/passaportA11"));
-	             //button = new Button("Anular");
-	        
 			 confirmDialog.setWidth("50%");
 	        
 			 confirmDialog.open();
@@ -747,29 +895,120 @@ public class VisaB133View extends VerticalLayout {
 
 	 private void saveBooking() {
 			try {
-				this.identityDoc.setName(booking.getNameReq());
-				this.identityDoc.setSurname(booking.getSurnameReq());
-				this.identityDoc.setIdentityNumber(booking.getIdNumber());
-				this.identityDoc.setValidate(booking.getIdValidate());
-				this.identityDoc.setLocalOfIssue(booking.getLocalOfIssue());
-				this.identityDoc.setIslifetime(haveEverBeenToMoz.getValue().equals(Labels.YES));
-				this.identityDoc.setCreatedBy(booking.getNameReq()+" "+booking.getSurnameReq());
-				this.identityDoc.setStatus(activeStatus);
+				Div content = new Div();
+				
+				this.passaport.setName(booking.getNameReq());
+				this.passaport.setSurname(booking.getSurnameReq());
+				this.passaport.setPassportNumber(booking.getIdNumber());
+				this.passaport.setValidate(booking.getIdValidate());
+				this.passaport.setIssueDate(booking.getIdIssue());
+				this.passaport.setCreatedBy(booking.getNameReq()+" "+booking.getSurnameReq());
+				this.passaport.setStatus(activeStatus);
+				this.passaport.setLocalOfIssue("");
+				this.passaport.setNationality(passportNationality.getValue());
 				
 				this.booking.setBookingId(AlphanumericGenerator.generateAlphanumericValue());
 				this.booking.setService(createService());
 				this.booking.setCreatedBy(booking.getNameReq()+" "+booking.getSurnameReq());
 				this.booking.setVersion(1);
-				this.booking.setIdentityDoc(identityDoc);
+				
+				this.booking.setPassport(passaport);
 				this.booking.setStatus(aprovedStatus);
 				
-				identityDocService.save(identityDoc);
-				bookingService.save(booking);
-				//clearFields();
-				navigateToView("/agendar");
-				Notification notification = Notification.show(Labels.SAVED_BOOKING_SUCCESSFULLY+" "+booking.getBookingId(), 10000, Position.TOP_CENTER); 
-				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-				notification.setPosition(Position.TOP_CENTER);
+				this.booking.setCompanyReq(Constants.NOT_APPLICABLE);
+				this.booking.setProfessionReq(Constants.NOT_APPLICABLE);
+				
+				this.booking.setPositionReq(Constants.NOT_APPLICABLE);
+				
+				Booking activeBooking = bookingService.getBookingByIDDocNumberAndStatusAndDate(idNumber.getValue(), booking.getService().getServiceId(), Constants.STATUS_APROVEDAPPROVED_FOR_CAPTURE_CODE);
+				List<Booking> bookingsWithSamePhone = bookingService.findByPhoneNumberAndStatusAndDate(phoneNumberReq.getValue(), Constants.STATUS_APROVEDAPPROVED_FOR_CAPTURE_CODE);
+				
+				if(activeBooking != null) {
+					 ConfirmDialog dialog = new ConfirmDialog();
+					 
+				     dialog.setHeader(Labels.APPLICANT_HAS_AN_ACTIVE_SCHEDULE);
+				     String html = Labels.APPLICANT_HAS_AN_ACTIVE_SCHEDULE_TEXT_INFO;
+				     html = html.replace("#1", booking.getDateToScheduleFormated());
+				     html = html.replace("#2", booking.getLocation().getName());
+				     html = html.replace("#3", booking.getService().getName());
+				     content.add(new Html(html));
+				        
+				     dialog.setText(content);
+				     
+				     dialog.setCancelable(true);
+				     dialog.setCancelText("Pesquisar Agendamento");
+				     dialog.addCancelListener(event -> { navigateToView("agendamentos"); });
+
+				     dialog.setRejectable(true);
+				     dialog.setRejectText("Reagendar");
+				     dialog.setRejectButtonTheme("success primary");
+				     dialog.addRejectListener(event -> { navigateToView("agendamentos"); 
+				     	Notification notification = Notification.show(Labels.SEARCH_FOR_BOOKING, 10000, Position.BOTTOM_CENTER); 
+						notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+				     });
+
+				     dialog.setConfirmText("Fechar");
+				     dialog.addConfirmListener(event -> { navigateToView("agendar"); });
+				     
+				     dialog.open();
+				}else 
+				if(bookingsWithSamePhone != null && bookingsWithSamePhone.size() >= 5){
+					ConfirmDialog dialog = new ConfirmDialog();
+					 
+				     dialog.setHeader(Labels.APPLICANT_HAS_MORE_THAN_FIVE_BOOKINGS);
+				     String html = Labels.APPLICANT_HAS_MORE_THAN_FIVE_BOOKINGS_TEXT_INFO;
+				     html = html.replace("#1", booking.getPhoneNumberReq());
+				     content.add(new Html(html));
+				        
+				     dialog.setText(content);
+				     
+				     dialog.setConfirmText("OK");
+
+				     dialog.open();
+				}
+				else{
+					Booking existingBooking = bookingService.getBookingByBookingId(booking.getBookingId());
+					while(existingBooking != null) {
+						this.booking.setBookingId(AlphanumericGenerator.generateAlphanumericValue());
+						existingBooking = bookingService.getBookingByBookingId(booking.getBookingId());
+				}
+					passportService.save(passaport);
+					bookingService.save(booking);
+					
+					if(familyName1.getValue() != null && familyNationality1.getValue() != null) {
+						familyService.save(createFamily(booking, familyName1.getValue(), familyNationality1.getValue(), familyRelationship1.getValue(), 
+								familyAddress1.getValue(), booking.getNameReq()+" "+booking.getSurnameReq()));
+					}
+					if(familyName2.getValue() != null && familyNationality2.getValue() != null) {
+						familyService.save(createFamily(booking, familyName2.getValue(), familyNationality2.getValue(), familyRelationship2.getValue(), 
+								familyAddress2.getValue(), booking.getNameReq()+" "+booking.getSurnameReq()));
+					}
+					if(familyName3.getValue() != null && familyNationality3.getValue() != null) {
+						familyService.save(createFamily(booking, familyName3.getValue(), familyNationality3.getValue(), familyRelationship3.getValue(), 
+								familyAddress3.getValue(), booking.getNameReq()+" "+booking.getSurnameReq()));
+					}
+					if(familyName4.getValue() != null  && familyNationality4.getValue() != null) {
+						familyService.save(createFamily(booking, familyName4.getValue(), familyNationality4.getValue(), familyRelationship4.getValue(), 
+								familyAddress4.getValue(), booking.getNameReq()+" "+booking.getSurnameReq()));
+					}
+					
+					if(booking.getEmailReq() != null) {
+						notificationManager = new NotificationManager(emailSendingReportService);
+						
+						String htmlBody = Notifications.EMAIL_HTML_BODY_BOOKING;
+						htmlBody = htmlBody.replace("#fullname", booking.getNameReq().concat(" ").concat(booking.getSurnameReq()))
+								.replace("#doc", booking.getService().getName())
+								.replace("#code", booking.getBookingId()).replace("#date", booking.getDateToScheduleFormated())
+								.replace("#local", booking.getLocation().getName());
+						
+						notificationManager.sendHtmlEmailNotification(booking.getEmailReq(), "", "", Notifications.EMAIL_SUBJECT_BOOKING, htmlBody, booking);
+					}
+					
+					navigateToView("/agendar");
+					Notification notification = Notification.show(Labels.SAVED_BOOKING_SUCCESSFULLY+" "+booking.getBookingId(), 10000, Position.TOP_CENTER); 
+					notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+				}
+				
 			} catch (Exception e) {
 				Notification notification = Notification.show(Labels.SAVED_BOOKING_ERROR); 
 				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -778,16 +1017,81 @@ public class VisaB133View extends VerticalLayout {
 				e.printStackTrace();
 				
 			}
-	}
+	 }
+	 
+	 private Family createFamily(Booking booking, String name, Nationality nationality, String relationship, String address, String createdBy) {
+		 return new Family(booking, name, nationality, relationship, address, activeStatus, createdBy, LocalDate.now(), null, null, 1);
+	 }
+	 
+	 private boolean maximumDailyCapacityReached() {
+		 Location selectedLocal = location.getValue();		 
+		 LocalDate date = dateToSchedule.getValue();
+		 LocalDate date1 = getNexWorkingDay(date), date2 = getNexWorkingDay(date1), date3 = getNexWorkingDay(date2);
+		 bookingLimit = bookingLimitService.findBookingLimitByDatesAndLocatio(date, date1, date2, date3, selectedLocal.getLocationId());
+		 
+		 if(bookingLimit != null && bookingLimit.get(0).getTotal_date_bookings() >= selectedLocal.getMaxLeadDays()) {
+			 bookingMaxLeadDayDialog(dateToSchedule.getValue(), selectedLocal.getMaxLeadDays());
+			 dateToSchedule.clear();
+		 }
+		 
+		 if(selectedLocal.getMaxLeadDays() > 5)
+			 return true;
+		 
+		 return false;
+	 }
+	 
+	 private LocalDate getNexWorkingDay(LocalDate date) {
+		 if(date.getDayOfWeek() == DayOfWeek.FRIDAY) {
+			 return date.plusDays(3);
+		 }else
+			 if(date.getDayOfWeek() == DayOfWeek.SATURDAY) {
+				 return date.plusDays(2);
+			 }else
+				return date.plusDays(1);
+	 }
+	 
+	 private void bookingMaxLeadDayDialog(LocalDate date, int limit) {
+		 Div content = new Div();
+		 Html text;
+		 int count = 0;
+		 UnorderedList unorderedList = new UnorderedList();
+		 for(BookingLimit element : bookingLimit) {
+			 if(element.getTotal_date_bookings() < limit)
+			 {
+				 ListItem item = new ListItem(element.getBooking_date().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+				 unorderedList.add(item);
+				 count++;
+			 }
+		 }
+		
+		if(count > 0) 
+			text = new Html(Labels.UNAVAILABLE_DATE_TEXT_INFO.replace("#", date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+		else
+			text = new Html(Labels.UNAVAILABLE_DATE_TEXT_INFO);
+	     
+		 content.add(text, unorderedList);
+
+	     ConfirmDialog dialog = new ConfirmDialog();
+	     dialog.setHeader(Labels.UNAVAILABLE_DATE);
+	        
+	     dialog.setText(content);
+
+	     dialog.setConfirmText("OK");
+
+	     dialog.open();
+	 }
 	 
 	 private void clearFields() {
 			booking = new Booking();
 			binder.getFields().forEach(HasValue::clear);
-			countryCode.setValue(countryCodeService.findAll().get(1));
 	}
 	
 	private void navigateToView(String route) {
 		getUI().ifPresent(ui -> ui.navigate(route));
 	}
-
+	
+	private boolean isWorkingDay(LocalDate date) {
+     DayOfWeek dayOfWeek = date.getDayOfWeek();
+     return dayOfWeek != DayOfWeek.SATURDAY && dayOfWeek != DayOfWeek.SUNDAY;
+ }
 }

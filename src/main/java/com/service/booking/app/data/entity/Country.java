@@ -25,6 +25,8 @@ public class Country {
 	private Integer countryId;
 	@Column(length = 150, nullable = false)
 	private String name;
+	@Column(length = 3, nullable = false)
+	private String code;
 	@Column(length = 2, nullable = false)
 	private String language;
 	@ManyToOne
@@ -49,9 +51,10 @@ public class Country {
 		
 	}
 
-	public Country(String name, Status status, String createdBy, Date createdDate, Date lastUpdateDate,
+	public Country(String name, String code, Status status, String createdBy, Date createdDate, Date lastUpdateDate,
 			String lastUpdateBy, int version) {
 		this.name = name;
+		this.code = code;
 		this.status = status;
 		this.createdBy = createdBy;
 		this.createdDate = createdDate;
@@ -74,6 +77,22 @@ public class Country {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
 	}
 
 	public Status getStatus() {
@@ -123,5 +142,15 @@ public class Country {
 	public void setVersion(int version) {
 		this.version = version;
 	}
+
+	@Override
+	public String toString() {
+		return "Country [countryId=" + countryId + ", name=" + name + ", code=" + code + ", language=" + language
+				+ ", status=" + status + ", createdBy=" + createdBy + ", createdDate=" + createdDate
+				+ ", lastUpdateDate=" + lastUpdateDate + ", lastUpdateBy=" + lastUpdateBy + ", version=" + version
+				+ "]";
+	}
+	
+	
 
 }

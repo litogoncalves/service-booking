@@ -32,4 +32,9 @@ public class CountryServiceImpl implements CountryService {
 		return repository.findByCountryId(countryId);
 	}
 
+	@Override
+	public Country getCountryByCode(String countryCode) {
+		return repository.findCountryByCode(countryCode, Constants.STATUS_ACTIVE_CODE);
+	}
+
 }

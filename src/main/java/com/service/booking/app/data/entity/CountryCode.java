@@ -25,6 +25,8 @@ public class CountryCode {
 	private Integer countryCodeId;
 	@Column(length = 150, nullable = false)
 	private String name;
+	@Column(length = 3, nullable=false)
+	private String code; 
 	@Column(length = 2, nullable = false)
 	private String language;
 	@ManyToOne

@@ -13,6 +13,9 @@ import com.service.booking.app.data.entity.Modality;
 public interface ModalityRepository extends JpaRepository<Modality,Integer>{
 	Modality findByModalityId(Integer modalityId);
 	
-	@Query("SELECT m FROM Modality m WHERE m.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
-    List<Modality> findModalityByStatus(@Param("statusCode") String statusCode);
+	@Query("SELECT m FROM Modality m WHERE m.category = :category and m.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
+    List<Modality> findModalityNationalByStatus(@Param("category") String category, @Param("statusCode") String statusCode);
+	
+	@Query("SELECT m FROM Modality m WHERE m.category = :category and m.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
+    List<Modality> findModalityByCategoryAndStatus(@Param("category") String category, @Param("statusCode") String statusCode);
 }

@@ -97,14 +97,14 @@ public class MainLayout extends AppLayout {
         Div layout = new Div();
         layout.addClassNames(Display.FLEX, AlignItems.CENTER, Padding.Horizontal.LARGE);
 
-        Image imgLogo1 = new Image("icons/icon.png", "Service Booking Icon Logo");
-        imgLogo1.setWidth("40px");
-        imgLogo1.getStyle().set("border-radius", "60%");
+        //Image imgLogo1 = new Image("icons/icon.png", "Service Booking Icon Logo");
+        Image imgLogo1 = new Image("images/SIGAV_Final.png", "SIGAV Logo");
+        imgLogo1.addClassName("logo");
+        //imgLogo1.getStyle().set("border-radius", "60%");
         
-        H1 appName = new H1("SIGAV");
+        H1 appName = new H1("");
         
-        imgLogo1.addClassNames(Margin.Vertical.MEDIUM, Margin.End.SMALL, FontSize.LARGE);
-        imgLogo1.addClassNames(Margin.Vertical.MEDIUM, Margin.End.SMALL, FontSize.LARGE);
+        imgLogo1.addClassNames(Margin.Vertical.MEDIUM, Margin.End.SMALL);
         appName.addClassNames(Margin.Vertical.MEDIUM, Margin.End.AUTO, FontSize.LARGE, "header-app-name");
         
         layout.add(imgLogo1,appName);

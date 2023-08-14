@@ -9,4 +9,5 @@ public interface CountryCodeService {
 	public void save(CountryCode countryCode);
 	public List<CountryCode> findAll();
 	public CountryCode getCountryCode(Integer countryCodeId);
+	public CountryCode getCountryCodeByCode(String countryCode);
 }

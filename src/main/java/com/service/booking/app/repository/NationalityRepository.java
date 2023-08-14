@@ -15,4 +15,7 @@ public interface NationalityRepository extends JpaRepository<Nationality, Intege
 	
 	@Query("SELECT n FROM Nationality n WHERE n.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
     List<Nationality> findModalityByStatus(@Param("statusCode") String statusCode);
+	
+	@Query("SELECT n FROM Nationality n WHERE n.countryCode = :code and n.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
+	Nationality findNationalityByCode(@Param("code") String code, @Param("statusCode") String statusCode);
 }

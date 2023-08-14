@@ -1,5 +1,6 @@
 package com.service.booking.app.data.entity;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -31,11 +32,11 @@ public class Passport {
 	@Column(name ="issue_date", nullable = true)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
 	@NotNull(message = Labels.REQUIRED_FIELD)
-	private Date issueDate;
+	private LocalDate issueDate;
 	@Column(nullable = false)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
 	@NotNull(message = Labels.REQUIRED_FIELD)
-	private Date validate;
+	private LocalDate validate;
 	@Column(name = "local_of_issue", nullable = false, length = 50)
 	private String localOfIssue;
 	@ManyToOne
@@ -61,14 +62,15 @@ public class Passport {
 	public Passport() {
 	}
 
-	public Passport(String name, String surname, @NotNull(message = "Campo obrigatório") Date issueDate,
-			@NotNull(message = "Campo obrigatório") Date validate, String localOfIssue, Status status, String createdBy,
-			Date createdDate, Date lastUpdateDate, String lastUpdateBy, int version) {
+	public Passport(String name, String surname, @NotNull(message = "Campo obrigatório") LocalDate issueDate,
+			@NotNull(message = "Campo obrigatório") LocalDate validate, String localOfIssue, Nationality nationality, 
+			Status status, String createdBy, Date createdDate, Date lastUpdateDate, String lastUpdateBy, int version) {
 		this.name = name;
 		this.surname = surname;
 		this.issueDate = issueDate;
 		this.validate = validate;
 		this.localOfIssue = localOfIssue;
+		this.nationality = nationality;
 		this.status = status;
 		this.createdBy = createdBy;
 		this.createdDate = createdDate;
@@ -101,20 +103,20 @@ public class Passport {
 		this.surname = surname;
 	}
 
-	public Date getIssueDate() {
+	public LocalDate getIssueDate() {
 		return issueDate;
 	}
 
-	public void setIssueDate(Date issueDate) {
+	public void setIssueDate(LocalDate issueDate) {
 		this.issueDate = issueDate;
 	}
 
-	public Date getValidate() {
+	public LocalDate getValidate() {
 		return validate;
 	}
 
-	public void setValidate(Date validate) {
-		this.validate = validate;
+	public void setValidate(LocalDate localDate) {
+		this.validate = localDate;
 	}
 
 	public String getLocalOfIssue() {
@@ -123,6 +125,14 @@ public class Passport {
 
 	public void setLocalOfIssue(String localOfIssue) {
 		this.localOfIssue = localOfIssue;
+	}
+
+	public Nationality getNationality() {
+		return nationality;
+	}
+
+	public void setNationality(Nationality nationality) {
+		this.nationality = nationality;
 	}
 
 	public Status getStatus() {

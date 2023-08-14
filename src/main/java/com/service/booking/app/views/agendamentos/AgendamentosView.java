@@ -6,6 +6,7 @@ import java.util.Date;
 
 import com.service.booking.app.constants.Constants;
 import com.service.booking.app.constants.Labels;
+import com.service.booking.app.constants.Notifications;
 import com.service.booking.app.data.entity.Booking;
 import com.service.booking.app.data.entity.BookingLogs;
 import com.service.booking.app.data.entity.District;
@@ -13,7 +14,9 @@ import com.service.booking.app.data.entity.Document;
 import com.service.booking.app.data.entity.Province;
 import com.service.booking.app.data.service.BookingLogsService;
 import com.service.booking.app.data.service.BookingService;
+import com.service.booking.app.data.service.EmailReportService;
 import com.service.booking.app.data.service.StatusService;
+import com.service.booking.app.http.controller.NotificationManager;
 import com.service.booking.app.utils.BookingUtils;
 import com.service.booking.app.data.entity.Status;
 import com.service.booking.app.views.MainLayout;
@@ -78,6 +81,9 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
 	private final BookingService bookingService;
 	private final BookingLogsService bookingLogsService;
 	private final StatusService statusService;
+	private final EmailReportService emailSendingReportService;
+
+	private NotificationManager notificationManager;
 	
 	private List<Booking> bookings;
 	private List<String> searchOptions;
@@ -102,13 +108,15 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
 	private Button cancelBtn;
 	private Button rescheduleBtn;
 	
-    public AgendamentosView(BookingService bookingService, StatusService statusService, BookingLogsService bookingLogsService) {
+    public AgendamentosView(BookingService bookingService, StatusService statusService, BookingLogsService bookingLogsService,
+    		EmailReportService emailSendingReportService) {
     	
 		setAlignItems(Alignment.CENTER);
 		
 		this.bookingService = bookingService;
 		this.statusService = statusService;
 		this.bookingLogsService = bookingLogsService;
+		this.emailSendingReportService = emailSendingReportService;
 		
         createVariables();
         createSearchOptions();
@@ -293,6 +301,18 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
             			notifyBookingNotFound();
             		}
         		}
+        		else
+        			if(searchFor.getValue().equals(Labels.PASSPORT_NUMBER)) {
+        				bookings = bookingService.findPassportNumberAndSurnameAndContact(searchCode.getValue(), surname.getValue(), phoneOrEmail.getValue());
+        				System.out.println("BOOKINGS: "+bookings);
+                		if(bookings != null && bookings.size() > 0) {
+                			updateGrid();
+                			 // Execute JavaScript code to scroll to the section with the given id
+                            getElement().executeJs("document.getElementById('booking_grid').scrollIntoView();");
+                		}else {
+                			notifyBookingNotFound();
+                		}
+        			}
     	}
     	
     }
@@ -427,6 +447,16 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
             	bookingLogsService.save(bookingLogs);
             	
             	updateGrid();
+            	
+            	if(booking.getEmailReq() != null) {
+					notificationManager = new NotificationManager(emailSendingReportService);
+					
+					String htmlBody = Notifications.EMAIL_HTML_BODY_BOOKING_CANCELED;
+					htmlBody = htmlBody.replace("#fullname", booking.getNameReq().concat(" ").concat(booking.getSurnameReq()))
+							.replace("#doc", booking.getService().getName()).replace("#code", booking.getBookingId());
+					
+					notificationManager.sendHtmlEmailNotification(booking.getEmailReq(), "", "", Notifications.EMAIL_SUBJECT_BOOKING_CANCELED, htmlBody, booking);
+				}
 
         		Notification notification = Notification.show(Labels.CANCELED_BOOKING_SUCCESSFULLY.replace("#", booking.getBookingId()), 10000, Position.TOP_CENTER); 
     			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);

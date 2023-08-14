@@ -1,5 +1,7 @@
 package com.service.booking.app.constants;
 
+import java.time.format.DateTimeFormatter;
+
 public class Labels {
 
 	public Labels() {
@@ -26,6 +28,7 @@ public class Labels {
 	public static final String DOCUMENT_TYPE_VISA_B15 = "Visto de Actividades de Investimento (B15)";
 	public static final String DOCUMENT_TYPE_VISA_B16 = "Visto de Actividades Culturais (B16)";
 	public static final String DOCUMENT_TYPE_VISA_B17 = "Outros Vistos (Negócio, Turismo e Visita) (B17)";
+	public static final String DOCUMENT_TYPE_VISA_B21 = "Prorrogação de Visto de Permanência Temporária (B21)";
 	
 	public static final String DOCUMENT_REQUEST_CONFIRM_DIALOG_TITLE = "Deseja solicitar o documento: {0}?";
 	public static final String DOCUMENT_REQUEST_REQUIREMENTS_TITLE = "Requisitos para solicitar o documento: ";
@@ -58,6 +61,14 @@ public class Labels {
 	
 	public static final String DOCUMENT_REQUIREMENT_CONTACT_EMBASSY = "Entre em contacto com a embaixada ou altos comissariados proximos de si";
 	
+	public static final String DOCUMENT_REQUIREMENT_INVESTMENT_PROOF = "Comprovativo de investimento em Moçambique, no valor igual ou superior a 500 mil dólares americanos";
+	public static final String DOCUMENT_REQUIREMENT_ACCOMMODATION_PROOF = "Comprovativo de garantia de alojamento em Moçambique";
+	public static final String DOCUMENT_REQUIREMENT_INSS_CERTIFICATE = "Certidão de Quitação das finanças e de INSS";
+	public static final String DOCUMENT_REQUIREMENT_REQUEST_LETTER = "Carta da solicitação da prorrogação do Visto";
+	public static final String DOCUMENT_REQUIREMENT_PASSPORT_COPY = "Cópia do passaporte";
+	public static final String DOCUMENT_REQUIREMENT_COPY_PREVIOUS_INVEST_VISA = "Cópia do visto de investimento anterior";
+	public static final String DOCUMENT_REQUIREMENT_CRIMINAL_RECORD_OPTIONAL = "Registo Criminal, se for primeira vez (Opcional)";
+	
 	public static final String NATIONAL_SERVICE_CATEGORY_TITLE = "Serviços Disponíveis para Cidadãos Nacionais";
 	public static final String FOREIGN_SERVICE_CATEGORY_TITLE = "Serviços Disponíveis para Cidadãos Estrangeiros";
 	
@@ -74,6 +85,7 @@ public class Labels {
 	public static final String ID_DOCUMENT = "Documento de Identificação";
 	public static final String PROFESSION = "Profissão";
 	public static final String ACCOMMODATION_ADDRESS = "Endereço do Local de Hospedagem em Moçambique";
+	public static final String FAMILY_SECTION = "Familiares amigos residentes em Moçambique";
 	
 
 	//Forms Labels
@@ -96,7 +108,7 @@ public class Labels {
 	public static final String TYPE_YOUR_BITHDATE = "Forneça a sua data de nascimento (obrigatório)";
 	public static final String IDENTITY_DOC_NUMBER = "Nº DE BILHETE DE IDENTIFICAÇÃO (B.I.)";
 	public static final String PASSPORT_DOC_NUMBER = "Nº DE PASSAPORTE";
-	public static final String TYPE_YOUR_IDENTITY_DOC_NUMBER = "Forneça o seu nº de B.I (obrigatório)";
+	public static final String TYPE_YOUR_IDENTITY_DOC_NUMBER = "Forneça o seu nº de B.I com 12 dígitos e uma letra (obrigatório)";
 	public static final String TYPE_YOUR_PASSAPORT_DOC_NUMBER = "Forneça o seu nº de passaport (obrigatório)";
 	public static final String SEARCH_YOUR_IDENTITY_DOC_NUMBER = "Forneça o seu nº de B.I";
 	public static final String LIFETIME = "VITALÍCIO";
@@ -175,9 +187,16 @@ public class Labels {
 	public static final String MARK_YOUR_HAVE_BEEN_RESIDENT_MOZ = "Marque Sim se ja tiver sido residente em Moçambique, caso contrário marque Não";
 	public static final String PERIOD_OF_STAY = "TEMPO DE ESTADIA EM MOÇAMBIQUE";
 	public static final String PERIOD_OF_STAY_HELPER_TEXT = "Selecione o seu tempo de estadia em Moçambique";
+	public static final String FAMILY_RELATIONSHIP = "PARENTESCO";
+	public static final String FAMILY_ADDRESS = "ENDEREÇO";
 	
 	//Validation Messages
 	public static final String REQUIRED_FIELD = "Campo obrigatório";
+	public static final String VALID_EMAIL = "Forneça um e-mail válido";
+	public static final String SET_BIRTHDATE_IN_THE_PAST = "A data de nascimento deve ser uma data passada";
+	public static final String SET_DATE_IN_THE_FUTURE = "A data definida deve ser estar no futuro";
+	public static final String TYPE_VALID_PHONE_NUMBER = "Digite um número de telemóvel válido";
+	public static final String TYPE_VALID_PHONE_NUMBER_258 = "Digite um número de telemóvel válido (ex: 821000001 ou 841000001 ou 861000001)";
 	
 	//Notification Messages
 	public static final String SAVED_BOOKING_SUCCESSFULLY = "O seu agendamento foi criado com sucesso. \nO seu código de agendamento é: ";
@@ -187,7 +206,8 @@ public class Labels {
 	public static final String BOOKING_NOT_FOUND = "Nenhum agendamento foi encontrado! Verifique os parâmetros de busca e tente novamente.";
 	public static final String CANCEL_BOOKING_FAILED = "Não foi possível cancelar o seu agendamento. Tente novammente mais tarde"; 
 	public static final String CANCELED_BOOKING_SUCCESSFULLY = "O agendamento com o código # foi cancelado com sucesso.";
-	
+	public static final String SELECT_ONLY_WORKING_DAYS = "Selecione um dia útil (de segunda-feira a sexta-feira).";
+	public static final String SEARCH_FOR_BOOKING = "Pesquise seu agendamento usando o código de agendamento ou nº de B.I.";
 	
 	//Tooltips
 	public static final String TOOLTIP_SAVE_FORM = "Salvar o formulário e criar o agendamento.";
@@ -216,6 +236,17 @@ public class Labels {
 	public static final String BOOKING_CONFIRMATION = "Confirme a baixo os dados do seu agendamento para tratar o documento: ";
 	public static final String CONFIRM_BOOKING = "Confirmação do Agendamento";
 	public static final String CONFIRM_BOOKING_CANCELLATION = "Anular Agendamento";
+	public static final String UNAVAILABLE_DATE = "Data Indisponível";
+	public static final String UNAVAILABLE_DATE_TEXT_INFO = "<p>Já foi atingido o limite de agendamentos para o dia <b>"
+	+"#</b>. Por favor selecione outra data."
+	+ "<br/>Abaixo algumas sugestões de datas disponiveis: </p>";
+	public static final String UNAVAILABLE_DATE_TEXT_INFO_NO_SUGGESTIONS = "<p>Já foi atingido o limite de agendamentos para o dia <b>"
+			+"#</b>. Por favor selecione outra data.";
+	public static final String APPLICANT_HAS_AN_ACTIVE_SCHEDULE = "JÁ POSSUE UM AGENDAMENTO ACTIVO";
+	public static final String APPLICANT_HAS_AN_ACTIVE_SCHEDULE_TEXT_INFO = "<p>Já possue um agendamento activo para a data <b>#1</b> no local <b>#2</b> "
+			+ "para tratar o documento <b>#3</b>.</br>Faça um reagendamento do seu agendamento actual ou selecione um documento diferente.</p>";
+	public static final String APPLICANT_HAS_MORE_THAN_FIVE_BOOKINGS = "ATINGIU O LIMITE DE AGENDAMENTOS POR CONTACTO";
+	public static final String APPLICANT_HAS_MORE_THAN_FIVE_BOOKINGS_TEXT_INFO = "<p>O número de telemóvel <b>#1</b> já atingiu o limite de agendamentos activos que pode associar!";
 	
 	//Buttons
 	public static final String CONFIRM_BOOKING_BUTTON = "Confirmar";

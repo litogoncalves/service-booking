@@ -25,6 +25,8 @@ public class Modality {
 	private Integer modalityId;
 	@Column(length = 150, nullable = false)
 	private String name;
+	@Column(length = 50, nullable = false)
+	private String category;
 	@ManyToOne
 	@JoinColumn(name = "status_id")
 	private Status status;

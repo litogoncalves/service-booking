@@ -32,4 +32,9 @@ public class NationalityServiceImpl implements NationalityService {
 		return repository.findByNationalityId(nationalityId);
 	}
 
+	@Override
+	public Nationality getNationalityByCode(String code) {
+		return repository.findNationalityByCode(code, Constants.STATUS_ACTIVE_CODE);
+	}
+
 }

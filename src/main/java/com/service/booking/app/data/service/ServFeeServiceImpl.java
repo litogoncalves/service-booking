@@ -32,4 +32,9 @@ public class ServFeeServiceImpl implements ServFeeService {
 		return repository.findByServiceFeeId(serviceFeeId);
 	}
 
+	@Override
+	public List<ServiceFee> findForeignServiceFee() {
+		return repository.findForeignServiceFeeByStatus(Constants.STATUS_ACTIVE_CODE);
+	}
+
 }

@@ -1,5 +1,6 @@
 package com.service.booking.app.data.entity;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -46,7 +47,7 @@ public class BookingLogs {
 	private Status status;
 	@Column(nullable = false)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-	private Date dateToSchedule;
+	private LocalDate dateToSchedule;
 	@ManyToOne
 	@JoinColumn(name = "location_id", nullable = false)
 	private Location location;
@@ -70,7 +71,7 @@ public class BookingLogs {
 	}
 	
 	public BookingLogs(String action, Date actionDate, String actionBy, String bookingId, Service service,
-			ServiceFee serviceFee, Modality modality, Status status, Date dateToSchedule, Location location,
+			ServiceFee serviceFee, Modality modality, Status status, LocalDate dateToSchedule, Location location,
 			Document documentType, IdentityDocument identityDoc, String nameReq, String surnameReq, String emailReq,
 			String contactoReq) {
 		this.action = action;
@@ -163,11 +164,11 @@ public class BookingLogs {
 		this.status = status;
 	}
 
-	public Date getDateToSchedule() {
+	public LocalDate getDateToSchedule() {
 		return dateToSchedule;
 	}
 
-	public void setDateToSchedule(Date dateToSchedule) {
+	public void setDateToSchedule(LocalDate dateToSchedule) {
 		this.dateToSchedule = dateToSchedule;
 	}
 

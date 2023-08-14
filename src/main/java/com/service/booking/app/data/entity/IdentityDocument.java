@@ -1,5 +1,6 @@
 package com.service.booking.app.data.entity;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -36,7 +37,7 @@ public class IdentityDocument {
 	//@CreationTimestamp
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
 	@NotNull(message = Labels.REQUIRED_FIELD)
-	private Date validate;
+	private LocalDate validate;
 	@Column(name = "local_of_issue", nullable = false, length = 50)
 	@NotEmpty(message = Labels.REQUIRED_FIELD)
 	private String localOfIssue;
@@ -64,7 +65,7 @@ public class IdentityDocument {
 		
 	}
 
-	public IdentityDocument(String name, String surname, Date issueDate, Date validate, String localOfIssue,
+	public IdentityDocument(String name, String surname, Date issueDate, LocalDate validate, String localOfIssue,
 			boolean islifetime, Status status, String createdBy, Date createdDate, Date lastUpdateDate,
 			String lastUpdateBy, int version) {
 		this.name = name;
@@ -113,11 +114,11 @@ public class IdentityDocument {
 		this.issueDate = issueDate;
 	}
 
-	public Date getValidate() {
+	public LocalDate getValidate() {
 		return validate;
 	}
 
-	public void setValidate(Date validate) {
+	public void setValidate(LocalDate validate) {
 		this.validate = validate;
 	}
 

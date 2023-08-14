@@ -32,6 +32,9 @@ public class Constants {
 	public static final String GENDER = "GENDER";
 	public static final String NOT_APPLICABLE = "N/A";
 	public static final String PERIOD_OF_STAY = "PERIOD_OF_STAY";
+	public static final String NATIONAL = "NATIONAL";
+	public static final String FOREIGN = "FOREIGN";
+	
 	
 	//Passport and Document Links/Buttons
 	public static final String DOCUMENT_A2 = "A2";
@@ -76,5 +79,6 @@ public class Constants {
 	public static final String DIRE_B37 = "B37";
 	public static final String DIRE_B38 = "B38";
 	
-	public static final String COUNTRY_CODE_MZ = "MZ"; 
+	public static final String COUNTRY_CODE_MZ_ISO = "MZ";
+	public static final String COUNTRY_CODE_MZ = "MOZ"; 
 }

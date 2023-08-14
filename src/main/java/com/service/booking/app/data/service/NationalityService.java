@@ -9,4 +9,5 @@ public interface NationalityService {
 	public void save(Nationality nationality);
 	public List<Nationality> findAll();
 	public Nationality getNationality(Integer nationalityId);
+	public Nationality getNationalityByCode(String code);
 }

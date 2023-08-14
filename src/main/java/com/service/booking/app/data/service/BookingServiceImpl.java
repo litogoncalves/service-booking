@@ -29,6 +29,8 @@ public class BookingServiceImpl implements BookingService{
 		if(booking.getHotelReservation() == null)
 			booking.setHotelReservation("N/A");
 		
+		booking.setIdNumber("N/A");
+		
 		repository.save(booking);
 	}
 
@@ -67,6 +69,34 @@ public class BookingServiceImpl implements BookingService{
 	public Booking getBookingByIDDocNumberAndSurnameAndContact(String identityDocId, String surname,
 			String phoneOrEmail) {
 		return repository.getBookingByIDDocNumberAndSurnameAndContact(identityDocId, surname, phoneOrEmail);
+	}
+
+	@Override
+	public Booking getBookingByIDDocNumberAndStatusAndDate(String idNumber, Integer ServiceId, String statusCode) {
+		return repository.getBookingByIDDocNumberAndStatusAndDate(idNumber, ServiceId, statusCode);
+	}
+
+	@Override
+	public List<Booking> findByPhoneNumberAndStatusAndDate(String phoneNumber, String statusCode) {
+		return repository.findByPhoneNumberAndStatusAndDate(phoneNumber, statusCode);
+	}
+
+	@Override
+	public List<Booking> findPassportNumberAndSurnameAndContact(String passportNumber, String surname,
+			String phoneOrEmail) {
+		return repository.findByPassportNumberAndSurnameAndContact(passportNumber, surname, phoneOrEmail);
+	}
+
+	@Override
+	public Booking getBookingByPassportNumberAndSurnameAndContact(String passportNumber, String surname,
+			String phoneOrEmail) {
+		return repository.getBookingByPassportNumberAndSurnameAndContact(passportNumber, surname, phoneOrEmail);
+	}
+
+	@Override
+	public Booking getBookingByPassportNumberAndStatusAndDate(String passportNumber, Integer serviceId,
+			String statusCode) {
+		return repository.getBookingByPassportNumberAndStatusAndDate(passportNumber, serviceId, statusCode);
 	}
 
 }

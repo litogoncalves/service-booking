@@ -9,4 +9,6 @@ public interface ServFeeService {
 	public void save(ServiceFee serviceFee);
 	public List<ServiceFee> findAll();
 	public ServiceFee getServiceFee(Integer serviceFeeId);
+	public List<ServiceFee> findForeignServiceFee();
+	
 }

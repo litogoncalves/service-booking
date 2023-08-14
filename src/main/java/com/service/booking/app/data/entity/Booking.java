@@ -3,7 +3,6 @@ package com.service.booking.app.data.entity;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
-
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -17,8 +16,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 
 @Entity
 @Table(name = "booking")
@@ -41,10 +42,10 @@ public class Booking {
 	@JoinColumn(name = "status_id", nullable = false)
 	private Status status;
 	@Column(nullable = false)
-	//@CreationTimestamp
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
 	@NotNull(message = Labels.REQUIRED_FIELD)
-	private Date dateToSchedule;
+	@Future(message = Labels.SET_DATE_IN_THE_FUTURE)
+	private LocalDate dateToSchedule;
 	@ManyToOne
 	@JoinColumn(name = "location_id", nullable = false)
 	@NotNull(message = Labels.REQUIRED_FIELD)
@@ -54,7 +55,7 @@ public class Booking {
 	@NotNull(message = Labels.REQUIRED_FIELD)
 	private Document documentType;
 	@ManyToOne
-	@JoinColumn(name = "identity_doc_id", nullable = false)
+	@JoinColumn(name = "identity_doc_id")
 	private IdentityDocument identityDoc;
 	@ManyToOne
 	@JoinColumn(name = "passport_id")
@@ -66,10 +67,10 @@ public class Booking {
 	@NotEmpty(message = Labels.REQUIRED_FIELD)
 	private String surnameReq;
 	@Column(name ="birthdate_req", nullable = false)
-	//@CreationTimestamp
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
 	@NotNull(message = Labels.REQUIRED_FIELD)
-	private Date birthdateReq;
+	@Past(message = Labels.SET_BIRTHDATE_IN_THE_PAST)
+	private LocalDate birthdateReq;
 	@ManyToOne
 	@JoinColumn(name = "country_of_birth_id", nullable = false)
 	@NotNull(message = Labels.REQUIRED_FIELD)
@@ -103,14 +104,15 @@ public class Booking {
 	@Column(length = 140)
 	private String note;
 	@Column(name = "email_req", length = 150, nullable = true)
-	@Email
+	@Email(message = Labels.VALID_EMAIL)
 	private String emailReq;
 	@ManyToOne
 	@JoinColumn(name ="country_code_id", nullable = false)
 	@NotNull(message = Labels.REQUIRED_FIELD)
 	private CountryCode countryCode;
 	@Column(name ="phone_number_req", length = 20, nullable = true)
-	@NotNull(message = Labels.REQUIRED_FIELD)
+	@NotEmpty(message = Labels.REQUIRED_FIELD)
+	//@Pattern(regexp = "[0-9]", message=Labels.TYPE_VALID_PHONE_NUMBER)
 	private String phoneNumberReq;
 	@Column(name = "single_name")
 	private String singleName;
@@ -132,9 +134,9 @@ public class Booking {
 	@NotEmpty(message = Labels.REQUIRED_FIELD)
 	private String companyReq;
 	@Column(name = "have_ever_been_to_moz")
-	private boolean haveEverBeenToMoz;
+	private String haveEverBeenToMoz;
 	@Column(name = "have_been_resident_moz")
-	private boolean haveBeenResidentMoz;
+	private String haveBeenResidentMoz;
 	@Column(name = "reason_for_leaving_moz")
 	private String reasonForLeavingMoz;
 	@Column(nullable = true, name="departure_date")
@@ -168,14 +170,13 @@ public class Booking {
 	@Column(length = 2, nullable = false)
 	private int version;
 	@Transient
-	//@NotEmpty(message = Labels.REQUIRED_FIELD)
 	private String idNumber;
 	@Transient
 	//@NotNull(message = Labels.REQUIRED_FIELD)
-	private Date idIssue;
+	private LocalDate idIssue;
 	@Transient
 	//@NotNull(message = Labels.REQUIRED_FIELD)
-	private Date idValidate;
+	private LocalDate idValidate;
 	@Transient
 	private String viatlicioRadioGroup;
 	@Transient
@@ -185,36 +186,48 @@ public class Booking {
 	private String isIDDocLifetime;
 	@Transient
 	private Nationality passportNationality;
+	@Transient
+	private String familyName;
+	@Transient
+	private Nationality familyNationality;
+	@Transient
+	private String familyRelationship;
+	@Transient
+	private String familyAddress;
 	
 	public Booking() {
 	}
-	
+
 	public Booking(Service service, @NotNull(message = "Campo obrigatório") ServiceFee serviceFee,
 			@NotNull(message = "Campo obrigatório") Modality modality, Status status,
-			@NotNull(message = "Campo obrigatório") Date dateToSchedule,
+			@NotNull(message = "Campo obrigatório") @Future(message = "A data definida deve ser estar no futuro") LocalDate dateToSchedule,
 			@NotNull(message = "Campo obrigatório") Location location,
 			@NotNull(message = "Campo obrigatório") Document documentType, IdentityDocument identityDoc,
 			Passport passport, @NotEmpty(message = "Campo obrigatório") String nameReq,
 			@NotEmpty(message = "Campo obrigatório") String surnameReq,
-			@NotNull(message = "Campo obrigatório") Date birthdateReq,
+			@NotNull(message = "Campo obrigatório") @Past(message = "A data de nascimento deve ser uma data passada") LocalDate birthdateReq,
 			@NotNull(message = "Campo obrigatório") Country countryOfBirthReq,
 			@NotNull(message = "Campo obrigatório") Nationality nationality,
 			@NotNull(message = "Campo obrigatório") Province provinceAddress,
-			@NotNull(message = "Campo obrigatório") District districtAddress, String cityAddress, String neighborhoodReq, 
-			String streetAddress, String hotelReservation,
-			@NotEmpty(message = "Campo obrigatório") String reasonForTravel, String note, @Email String emailReq,
+			@NotNull(message = "Campo obrigatório") District districtAddress,
+			@NotEmpty(message = "Campo obrigatório") String cityAddress, String neighborhoodReq,
+			@NotEmpty(message = "Campo obrigatório") String streetAddress,
+			@NotEmpty(message = "Campo obrigatório") String hotelReservation,
+			@NotEmpty(message = "Campo obrigatório") String reasonForTravel, String note,
+			@Email(message = "Forneça um e-mail válido") String emailReq,
 			@NotNull(message = "Campo obrigatório") CountryCode countryCode,
-			@NotNull(message = "Campo obrigatório") String phoneNumberReq, String singleName,
+			@NotEmpty(message = "Campo obrigatório") String phoneNumberReq, String singleName,
 			@NotNull(message = "Campo obrigatório") GeneralData gender,
 			@NotNull(message = "Campo obrigatório") GeneralData maritalStatus,
 			@NotEmpty(message = "Campo obrigatório") String professionReq,
 			@NotEmpty(message = "Campo obrigatório") String positionReq,
-			@NotEmpty(message = "Campo obrigatório") String companyReq, boolean haveEverBeenToMoz,
-			boolean haveBeenResidentMoz, String reasonForLeavingMoz, Date departureDate, String companiesWorkedFor,
-			GeneralData lengthOfStayMoz, Date residentDepartureDate, String createdBy, Date createdDate, Date lastUpdateDate,
-			String lastUpdateBy, Date cancelledDate, String cancelledBy, int version, String idNumber, Date idIssue,
-			Date idValidate, String viatlicioRadioGroup, String localOfIssue, String isIDDocLifetime,
-			Nationality passportNationality) {
+			@NotEmpty(message = "Campo obrigatório") String companyReq, String haveEverBeenToMoz,
+			String haveBeenResidentMoz, String reasonForLeavingMoz, Date departureDate, String companiesWorkedFor,
+			GeneralData lengthOfStayMoz, Date residentDepartureDate, String createdBy, Date createdDate,
+			Date lastUpdateDate, String lastUpdateBy, Date cancelledDate, String cancelledBy, int version,
+			String idNumber, LocalDate idIssue, LocalDate idValidate, String viatlicioRadioGroup, String localOfIssue,
+			String isIDDocLifetime, Nationality passportNationality, String familyName, Nationality familyNationality,
+			String familyRelationship, String familyAddress) {
 		this.service = service;
 		this.serviceFee = serviceFee;
 		this.modality = modality;
@@ -267,8 +280,11 @@ public class Booking {
 		this.localOfIssue = localOfIssue;
 		this.isIDDocLifetime = isIDDocLifetime;
 		this.passportNationality = passportNationality;
+		this.familyName = familyName;
+		this.familyNationality = familyNationality;
+		this.familyRelationship = familyRelationship;
+		this.familyAddress = familyAddress;
 	}
-
 
 	public Location getLocation() {
 		return location;
@@ -326,26 +342,26 @@ public class Booking {
 		this.status = status;
 	}
 
-	public Date getDateToSchedule() {
+	public LocalDate getDateToSchedule() {
 		return dateToSchedule;
 	}
 
 	public String getDateToScheduleFormated() {
 		
 		// Convert Date to LocalDate
-        LocalDate localDate = dateToSchedule.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+        //LocalDate localDate = dateToSchedule.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
 
 
         // Create a DateTimeFormatter with the desired date format
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
         // Format the date using the formatter
-        String formattedDate = localDate.format(formatter);
+        String formattedDate = dateToSchedule.format(formatter);
         
 		return formattedDate;
 	}
 	
-	public void setDateToSchedule(Date dateToSchedule) {
+	public void setDateToSchedule(LocalDate dateToSchedule) {
 		this.dateToSchedule = dateToSchedule;
 	}
 
@@ -509,11 +525,11 @@ public class Booking {
 		this.version = version;
 	}
 
-	public Date getBirthdateReq() {
+	public LocalDate getBirthdateReq() {
 		return birthdateReq;
 	}
 
-	public void setBirthdateReq(Date birthdateReq) {
+	public void setBirthdateReq(LocalDate birthdateReq) {
 		this.birthdateReq = birthdateReq;
 	}
 
@@ -525,11 +541,11 @@ public class Booking {
 		this.idNumber = idNumber;
 	}
 
-	public Date getIdValidate() {
+	public LocalDate getIdValidate() {
 		return idValidate;
 	}
 
-	public void setIdValidate(Date idValidate) {
+	public void setIdValidate(LocalDate idValidate) {
 		this.idValidate = idValidate;
 	}
 
@@ -589,11 +605,11 @@ public class Booking {
 		this.maritalStatus = maritalStatus;
 	}
 
-	public Date getIdIssue() {
+	public LocalDate getIdIssue() {
 		return idIssue;
 	}
 
-	public void setIdIssue(Date idIssue) {
+	public void setIdIssue(LocalDate idIssue) {
 		this.idIssue = idIssue;
 	}
 
@@ -629,19 +645,19 @@ public class Booking {
 		this.companyReq = companyReq;
 	}
 
-	public boolean isHaveEverBeenToMoz() {
+	public String isHaveEverBeenToMoz() {
 		return haveEverBeenToMoz;
 	}
 
-	public void setHaveEverBeenToMoz(boolean haveEverBeenToMoz) {
+	public void setHaveEverBeenToMoz(String haveEverBeenToMoz) {
 		this.haveEverBeenToMoz = haveEverBeenToMoz;
 	}
 
-	public boolean isHaveBeenResidentMoz() {
+	public String isHaveBeenResidentMoz() {
 		return haveBeenResidentMoz;
 	}
 
-	public void setHaveBeenResidentMoz(boolean haveBeenResidentMoz) {
+	public void setHaveBeenResidentMoz(String haveBeenResidentMoz) {
 		this.haveBeenResidentMoz = haveBeenResidentMoz;
 	}
 
@@ -709,6 +725,38 @@ public class Booking {
 		this.hotelReservation = hotelReservation;
 	}
 
+	public String getFamilyName() {
+		return familyName;
+	}
+
+	public void setFamilyName(String familyName) {
+		this.familyName = familyName;
+	}
+
+	public Nationality getFamilyNationality() {
+		return familyNationality;
+	}
+
+	public void setFamilyNationality(Nationality familyNationality) {
+		this.familyNationality = familyNationality;
+	}
+
+	public String getFamilyRelationship() {
+		return familyRelationship;
+	}
+
+	public void setFamilyRelationship(String familyRelationship) {
+		this.familyRelationship = familyRelationship;
+	}
+
+	public String getFamilyAddress() {
+		return familyAddress;
+	}
+
+	public void setFamilyAddress(String familyAddress) {
+		this.familyAddress = familyAddress;
+	}
+
 	@Override
 	public String toString() {
 		return "Booking [bookingId=" + bookingId + ", service=" + service + ", serviceFee=" + serviceFee + ", modality="
@@ -716,11 +764,12 @@ public class Booking {
 				+ ", documentType=" + documentType + ", identityDoc=" + identityDoc + ", passport=" + passport
 				+ ", nameReq=" + nameReq + ", surnameReq=" + surnameReq + ", birthdateReq=" + birthdateReq
 				+ ", countryOfBirthReq=" + countryOfBirthReq + ", nationality=" + nationality + ", provinceAddress="
-				+ provinceAddress + ", districtAddress=" + districtAddress + ", neighborhoodReq=" + neighborhoodReq
-				+ ", reasonForTravel=" + reasonForTravel + ", note=" + note + ", emailReq=" + emailReq
-				+ ", countryCode=" + countryCode + ", phoneNumberReq=" + phoneNumberReq + ", singleName=" + singleName
-				+ ", gender=" + gender + ", maritalStatus=" + maritalStatus + ", professionReq=" + professionReq
-				+ ", positionReq=" + positionReq + ", companyReq=" + companyReq + ", haveEverBeenToMoz="
+				+ provinceAddress + ", districtAddress=" + districtAddress + ", cityAddress=" + cityAddress
+				+ ", neighborhoodReq=" + neighborhoodReq + ", streetAddress=" + streetAddress + ", hotelReservation="
+				+ hotelReservation + ", reasonForTravel=" + reasonForTravel + ", note=" + note + ", emailReq="
+				+ emailReq + ", countryCode=" + countryCode + ", phoneNumberReq=" + phoneNumberReq + ", singleName="
+				+ singleName + ", gender=" + gender + ", maritalStatus=" + maritalStatus + ", professionReq="
+				+ professionReq + ", positionReq=" + positionReq + ", companyReq=" + companyReq + ", haveEverBeenToMoz="
 				+ haveEverBeenToMoz + ", haveBeenResidentMoz=" + haveBeenResidentMoz + ", reasonForLeavingMoz="
 				+ reasonForLeavingMoz + ", departureDate=" + departureDate + ", companiesWorkedFor="
 				+ companiesWorkedFor + ", lengthOfStayMoz=" + lengthOfStayMoz + ", residentDepartureDate="
@@ -729,9 +778,8 @@ public class Booking {
 				+ cancelledDate + ", cancelledBy=" + cancelledBy + ", version=" + version + ", idNumber=" + idNumber
 				+ ", idIssue=" + idIssue + ", idValidate=" + idValidate + ", viatlicioRadioGroup=" + viatlicioRadioGroup
 				+ ", localOfIssue=" + localOfIssue + ", isIDDocLifetime=" + isIDDocLifetime + ", passportNationality="
-				+ passportNationality + "]";
+				+ passportNationality + ", familyName=" + familyName + ", familyNationality=" + familyNationality
+				+ ", familyRelationship=" + familyRelationship + ", familyAddress=" + familyAddress + "]";
 	}
-
-	
 	
 }
