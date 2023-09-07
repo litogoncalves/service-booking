@@ -10,5 +10,6 @@ public interface ServFeeService {
 	public List<ServiceFee> findAll();
 	public ServiceFee getServiceFee(Integer serviceFeeId);
 	public List<ServiceFee> findForeignServiceFee();
+	public List<ServiceFee> findVisaExtendServiceFee();
 	
 }

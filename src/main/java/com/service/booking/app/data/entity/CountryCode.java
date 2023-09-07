@@ -66,6 +66,14 @@ public class CountryCode {
 		this.name = name;
 	}
 
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
 	public String getLanguage() {
 		return language;
 	}

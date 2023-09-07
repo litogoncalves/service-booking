@@ -10,5 +10,6 @@ public interface DocumentService {
 	public List<Document> findAll();
 	public Document getDocument(Integer documentId);
 	public List<Document> findForeingDocs(String category);
+	public List<Document> findExtendVisaDocs(String category);
 
 }

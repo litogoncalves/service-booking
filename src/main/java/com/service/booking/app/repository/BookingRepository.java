@@ -47,4 +47,23 @@ public interface BookingRepository extends JpaRepository<Booking, String>{
 	@Query("SELECT b FROM Booking b WHERE b.passport.passportNumber = :passportNumber and surnameReq = :surname_req and (phoneNumberReq = :contact or emailReq = :contact) ")
 	Booking getBookingByPassportNumberAndSurnameAndContact(@Param("passportNumber") String id_doc_number, @Param("surname_req") String surname_req, @Param("contact") String contact);
 	
+	@Query("SELECT b FROM Booking b WHERE b.dateToSchedule >= :dateFrom and b.dateToSchedule <= :dateTo and b.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
+    List<Booking> findByDatesAndStatus(@Param("dateFrom") LocalDate dateFrom, @Param("dateTo") LocalDate dateTo,@Param("statusCode") String statusCode);
+	
+	@Query("SELECT b FROM Booking b WHERE b.dateToSchedule >= :dateFrom and b.dateToSchedule <= :dateTo and "
+			+ "b.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
+	List<Booking> findByFilters(@Param("dateFrom") LocalDate dateFrom, @Param("dateTo") LocalDate dateTo, @Param("statusCode") String statusCode);
+	
+	@Query("SELECT b FROM Booking b WHERE b.dateToSchedule >= :dateFrom and b.dateToSchedule <= :dateTo "
+			+ "and b.service.serviceId = :serviceId and b.location.locationId = :locationId and b.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
+	List<Booking> findByAllFilters(@Param("dateFrom") LocalDate dateFrom, @Param("dateTo") LocalDate dateTo, @Param("serviceId") int serviceId, @Param("locationId") int locationId, @Param("statusCode") String statusCode);
+	
+	@Query("SELECT b FROM Booking b WHERE b.dateToSchedule >= :dateFrom and b.dateToSchedule <= :dateTo "
+			+ "and b.service.serviceId = :serviceId and b.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
+	List<Booking> findByDocAndStatus(@Param("dateFrom") LocalDate dateFrom, @Param("dateTo") LocalDate dateTo, @Param("serviceId") int serviceId, @Param("statusCode") String statusCode);
+	
+	@Query("SELECT b FROM Booking b WHERE b.dateToSchedule >= :dateFrom and b.dateToSchedule <= :dateTo "
+			+ "and b.location.locationId = :locationId and b.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
+	List<Booking> findByLocationAndStatus(@Param("dateFrom") LocalDate dateFrom, @Param("dateTo") LocalDate dateTo, @Param("locationId") int locationId, @Param("statusCode") String statusCode);
+	
 }

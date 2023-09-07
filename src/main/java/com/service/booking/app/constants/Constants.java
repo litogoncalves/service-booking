@@ -6,6 +6,10 @@ public class Constants {
 		
 	}
 	
+	//Credentials
+	private static final String USENDIT_USERNAME = "dsl";
+	private static final String USENDIT_PASSWORD = "Usendit*786";
+	
 	//Buttons and Links
 	public static final String REMOVE = "Remover";
 	public static final String CANCEL = "Cancelar";
@@ -34,6 +38,7 @@ public class Constants {
 	public static final String PERIOD_OF_STAY = "PERIOD_OF_STAY";
 	public static final String NATIONAL = "NATIONAL";
 	public static final String FOREIGN = "FOREIGN";
+	public static final String ACADEMIC_LEVEL = "ACADEMIC_LEVEL";
 	
 	
 	//Passport and Document Links/Buttons
@@ -64,6 +69,7 @@ public class Constants {
 	public static final String VISA_B232 = "B232";
 	public static final String VISA_B233 = "B233";
 	
+	public static final String DIRE_NORMAL = "DIRE";
 	public static final String DIRE_B4 = "B4";
 	public static final String DIRE_B5 = "B5";
 	public static final String DIRE_B6 = "B6";
@@ -79,6 +85,22 @@ public class Constants {
 	public static final String DIRE_B37 = "B37";
 	public static final String DIRE_B38 = "B38";
 	
-	public static final String COUNTRY_CODE_MZ_ISO = "MZ";
-	public static final String COUNTRY_CODE_MZ = "MOZ"; 
+	public static final String DOCUMENT_B4 = "B4";
+	public static final String DOCUMENT_B5 = "B5";
+	public static final String DOCUMENT_B6 = "B6";
+	public static final String DOCUMENT_B7 = "B7";
+	public static final String DOCUMENT_B8 = "B8";
+	public static final String DOCUMENT_B9 = "B9";
+	
+	public static final String COUNTRY_CODE_MZ_ISO = "MOZ";
+	public static final String COUNTRY_CODE_MZ = "MOZ";
+	
+	public static String getUsenditUsername() {
+		return USENDIT_USERNAME;
+	}
+	public static String getUsenditPassword() {
+		return USENDIT_PASSWORD;
+	}
+	
+	
 }

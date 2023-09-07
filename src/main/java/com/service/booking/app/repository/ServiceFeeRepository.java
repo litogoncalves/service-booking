@@ -18,4 +18,7 @@ public interface ServiceFeeRepository extends JpaRepository<ServiceFee,Integer>{
 
 	@Query("SELECT f FROM ServiceFee f WHERE f.name in ('Normal', 'Normale') and f.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
     List<ServiceFee> findForeignServiceFeeByStatus(@Param("statusCode") String statusCode);
+	
+	@Query("SELECT f FROM ServiceFee f WHERE f.name in ('Normal', 'Normale', 'Urgente', 'Urgent') and f.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
+    List<ServiceFee> findVisaExtendServiceFeeByStatus(@Param("statusCode") String statusCode);
 }

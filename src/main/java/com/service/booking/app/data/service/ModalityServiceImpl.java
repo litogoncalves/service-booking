@@ -37,4 +37,9 @@ public class ModalityServiceImpl implements ModalityService {
 		return repository.findModalityByCategoryAndStatus(category, Constants.STATUS_ACTIVE_CODE);
 	}
 
+	@Override
+	public List<Modality> findModalityVisaExtend() {
+		return repository.findVisaExtendModalityByStatus(Constants.STATUS_ACTIVE_CODE);
+	}
+
 }

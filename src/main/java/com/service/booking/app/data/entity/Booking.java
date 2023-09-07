@@ -80,6 +80,11 @@ public class Booking {
 	@NotNull(message = Labels.REQUIRED_FIELD)
 	private Nationality nationality;
 	@ManyToOne
+	@JoinColumn(name = "other_nationality_id")
+	private Nationality otherNationality;
+	@Column(name = "place_of_birth", length = 100)
+	private String placeOfBirth;
+	@ManyToOne
 	@JoinColumn(name = "province_address_id", nullable = false)
 	@NotNull(message = Labels.REQUIRED_FIELD)
 	private Province provinceAddress;
@@ -96,10 +101,10 @@ public class Booking {
 	@NotEmpty(message = Labels.REQUIRED_FIELD)
 	private String streetAddress;
 	@Column(name = "hotel_reservation")
-	@NotEmpty(message = Labels.REQUIRED_FIELD)
+	//@NotEmpty(message = Labels.REQUIRED_FIELD)
 	private String hotelReservation;
 	@Column(name = "reason_for_travel", length = 140)
-	@NotEmpty(message = Labels.REQUIRED_FIELD)
+	//@NotEmpty(message = Labels.REQUIRED_FIELD)
 	private String reasonForTravel;
 	@Column(length = 140)
 	private String note;
@@ -112,17 +117,16 @@ public class Booking {
 	private CountryCode countryCode;
 	@Column(name ="phone_number_req", length = 20, nullable = true)
 	@NotEmpty(message = Labels.REQUIRED_FIELD)
-	//@Pattern(regexp = "[0-9]", message=Labels.TYPE_VALID_PHONE_NUMBER)
 	private String phoneNumberReq;
 	@Column(name = "single_name")
 	private String singleName;
 	@ManyToOne
 	@JoinColumn(name ="gender_id")
-	@NotNull(message = Labels.REQUIRED_FIELD)
+	//@NotNull(message = Labels.REQUIRED_FIELD)
 	private GeneralData gender;
 	@ManyToOne
 	@JoinColumn(name ="marital_status_id")
-	@NotNull(message = Labels.REQUIRED_FIELD)
+	//@NotNull(message = Labels.REQUIRED_FIELD)
 	private GeneralData maritalStatus;
 	@Column(length = 150)
 	@NotEmpty(message = Labels.REQUIRED_FIELD)
@@ -139,6 +143,8 @@ public class Booking {
 	private String haveBeenResidentMoz;
 	@Column(name = "reason_for_leaving_moz")
 	private String reasonForLeavingMoz;
+	@Column(name = "entry_date")
+	private LocalDate entryDate;
 	@Column(nullable = true, name="departure_date")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
 	private Date departureDate;
@@ -147,9 +153,20 @@ public class Booking {
 	@ManyToOne
 	@JoinColumn(name = "length_of_stay_moz_id")
 	private GeneralData lengthOfStayMoz;
+	@ManyToOne
+	@JoinColumn(name = "length_of_additional_days_id")
+	private GeneralData lengthOfAdditionalDays;
 	@Column(nullable = true, name="resident_departure_date")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
 	private Date residentDepartureDate;
+	@Column(name= "visa_req")
+	private String visaReq;
+	@Column(name= "visa_issue_date")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
+	private LocalDate visaIssueDate;
+	@Column(name= "visa_validate")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
+	private LocalDate visaValidate;
 	@Column(length = 50, nullable = false)
 	private String createdBy;
 	@Column(nullable = false)
@@ -157,7 +174,6 @@ public class Booking {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
 	private Date createdDate;
 	@Column(nullable = true)
-	//@CreationTimestamp
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
 	private Date lastUpdateDate;
 	@Column(length = 50, nullable = true)
@@ -194,11 +210,25 @@ public class Booking {
 	private String familyRelationship;
 	@Transient
 	private String familyAddress;
+	@Transient
+	private String fatherName;
+	@Transient
+	private String motherName;
+	@Transient
+	private Nationality fatherNationality;
+	@Transient
+	private Nationality motherNationaliy;
+	@Transient
+	private GeneralData academicLevel;
+	@Transient
+	private String employer;
+	@Transient
+	private String workPhoneNumber;
 	
 	public Booking() {
 	}
 
-	public Booking(Service service, @NotNull(message = "Campo obrigatório") ServiceFee serviceFee,
+	public Booking(String bookingId, Service service, @NotNull(message = "Campo obrigatório") ServiceFee serviceFee,
 			@NotNull(message = "Campo obrigatório") Modality modality, Status status,
 			@NotNull(message = "Campo obrigatório") @Future(message = "A data definida deve ser estar no futuro") LocalDate dateToSchedule,
 			@NotNull(message = "Campo obrigatório") Location location,
@@ -207,14 +237,12 @@ public class Booking {
 			@NotEmpty(message = "Campo obrigatório") String surnameReq,
 			@NotNull(message = "Campo obrigatório") @Past(message = "A data de nascimento deve ser uma data passada") LocalDate birthdateReq,
 			@NotNull(message = "Campo obrigatório") Country countryOfBirthReq,
-			@NotNull(message = "Campo obrigatório") Nationality nationality,
-			@NotNull(message = "Campo obrigatório") Province provinceAddress,
+			@NotNull(message = "Campo obrigatório") Nationality nationality, Nationality otherNationality,
+			String placeOfBirth, @NotNull(message = "Campo obrigatório") Province provinceAddress,
 			@NotNull(message = "Campo obrigatório") District districtAddress,
 			@NotEmpty(message = "Campo obrigatório") String cityAddress, String neighborhoodReq,
-			@NotEmpty(message = "Campo obrigatório") String streetAddress,
-			@NotEmpty(message = "Campo obrigatório") String hotelReservation,
-			@NotEmpty(message = "Campo obrigatório") String reasonForTravel, String note,
-			@Email(message = "Forneça um e-mail válido") String emailReq,
+			@NotEmpty(message = "Campo obrigatório") String streetAddress, String hotelReservation,
+			String reasonForTravel, String note, @Email(message = "Forneça um e-mail válido") String emailReq,
 			@NotNull(message = "Campo obrigatório") CountryCode countryCode,
 			@NotEmpty(message = "Campo obrigatório") String phoneNumberReq, String singleName,
 			@NotNull(message = "Campo obrigatório") GeneralData gender,
@@ -222,12 +250,16 @@ public class Booking {
 			@NotEmpty(message = "Campo obrigatório") String professionReq,
 			@NotEmpty(message = "Campo obrigatório") String positionReq,
 			@NotEmpty(message = "Campo obrigatório") String companyReq, String haveEverBeenToMoz,
-			String haveBeenResidentMoz, String reasonForLeavingMoz, Date departureDate, String companiesWorkedFor,
-			GeneralData lengthOfStayMoz, Date residentDepartureDate, String createdBy, Date createdDate,
-			Date lastUpdateDate, String lastUpdateBy, Date cancelledDate, String cancelledBy, int version,
-			String idNumber, LocalDate idIssue, LocalDate idValidate, String viatlicioRadioGroup, String localOfIssue,
-			String isIDDocLifetime, Nationality passportNationality, String familyName, Nationality familyNationality,
-			String familyRelationship, String familyAddress) {
+			String haveBeenResidentMoz, String reasonForLeavingMoz, LocalDate entryDate, Date departureDate,
+			String companiesWorkedFor, GeneralData lengthOfStayMoz, GeneralData lengthOfAdditionalDays,
+			Date residentDepartureDate, String visaReq, LocalDate visaIssueDate, LocalDate visaValidate,
+			String createdBy, Date createdDate, Date lastUpdateDate, String lastUpdateBy, Date cancelledDate,
+			String cancelledBy, int version, String idNumber, LocalDate idIssue, LocalDate idValidate,
+			String viatlicioRadioGroup, String localOfIssue, String isIDDocLifetime, Nationality passportNationality,
+			String familyName, Nationality familyNationality, String familyRelationship, String familyAddress,
+			String fatherName, String motherName, Nationality fatherNationality, Nationality motherNationaliy,
+			GeneralData academicLevel, String employer, String workPhoneNumber) {
+		this.bookingId = bookingId;
 		this.service = service;
 		this.serviceFee = serviceFee;
 		this.modality = modality;
@@ -242,6 +274,8 @@ public class Booking {
 		this.birthdateReq = birthdateReq;
 		this.countryOfBirthReq = countryOfBirthReq;
 		this.nationality = nationality;
+		this.otherNationality = otherNationality;
+		this.placeOfBirth = placeOfBirth;
 		this.provinceAddress = provinceAddress;
 		this.districtAddress = districtAddress;
 		this.cityAddress = cityAddress;
@@ -262,10 +296,15 @@ public class Booking {
 		this.haveEverBeenToMoz = haveEverBeenToMoz;
 		this.haveBeenResidentMoz = haveBeenResidentMoz;
 		this.reasonForLeavingMoz = reasonForLeavingMoz;
+		this.entryDate = entryDate;
 		this.departureDate = departureDate;
 		this.companiesWorkedFor = companiesWorkedFor;
 		this.lengthOfStayMoz = lengthOfStayMoz;
+		this.lengthOfAdditionalDays = lengthOfAdditionalDays;
 		this.residentDepartureDate = residentDepartureDate;
+		this.visaReq = visaReq;
+		this.visaIssueDate = visaIssueDate;
+		this.visaValidate = visaValidate;
 		this.createdBy = createdBy;
 		this.createdDate = createdDate;
 		this.lastUpdateDate = lastUpdateDate;
@@ -284,7 +323,16 @@ public class Booking {
 		this.familyNationality = familyNationality;
 		this.familyRelationship = familyRelationship;
 		this.familyAddress = familyAddress;
+		this.fatherName = fatherName;
+		this.motherName = motherName;
+		this.fatherNationality = fatherNationality;
+		this.motherNationaliy = motherNationaliy;
+		this.academicLevel = academicLevel;
+		this.employer = employer;
+		this.workPhoneNumber = workPhoneNumber;
 	}
+
+
 
 	public Location getLocation() {
 		return location;
@@ -693,6 +741,14 @@ public class Booking {
 		this.lengthOfStayMoz = lengthOfStayMoz;
 	}
 
+	public GeneralData getLengthOfAdditionalDays() {
+		return lengthOfAdditionalDays;
+	}
+
+	public void setLengthOfAdditionalDays(GeneralData lengthOfAdditionalDays) {
+		this.lengthOfAdditionalDays = lengthOfAdditionalDays;
+	}
+
 	public Date getResidentDepartureDate() {
 		return residentDepartureDate;
 	}
@@ -755,6 +811,118 @@ public class Booking {
 
 	public void setFamilyAddress(String familyAddress) {
 		this.familyAddress = familyAddress;
+	}
+
+	public Nationality getOtherNationality() {
+		return otherNationality;
+	}
+
+	public void setOtherNationality(Nationality otherNationality) {
+		this.otherNationality = otherNationality;
+	}
+
+	public String getPlaceOfBirth() {
+		return placeOfBirth;
+	}
+
+	public void setPlaceOfBirth(String placeOfBirth) {
+		this.placeOfBirth = placeOfBirth;
+	}
+
+	public String getFatherName() {
+		return fatherName;
+	}
+
+	public void setFatherName(String fatherName) {
+		this.fatherName = fatherName;
+	}
+
+	public String getMotherName() {
+		return motherName;
+	}
+
+	public void setMotherName(String motherName) {
+		this.motherName = motherName;
+	}
+
+	public Nationality getFatherNationality() {
+		return fatherNationality;
+	}
+
+	public void setFatherNationality(Nationality fatherNationality) {
+		this.fatherNationality = fatherNationality;
+	}
+
+	public Nationality getMotherNationaliy() {
+		return motherNationaliy;
+	}
+
+	public void setMotherNationaliy(Nationality motherNationaliy) {
+		this.motherNationaliy = motherNationaliy;
+	}
+
+	public String getHaveEverBeenToMoz() {
+		return haveEverBeenToMoz;
+	}
+
+	public String getHaveBeenResidentMoz() {
+		return haveBeenResidentMoz;
+	}
+
+	public String getVisaReq() {
+		return visaReq;
+	}
+
+	public void setVisaReq(String visa) {
+		this.visaReq = visa;
+	}
+
+	public LocalDate getVisaIssueDate() {
+		return visaIssueDate;
+	}
+
+	public void setVisaIssueDate(LocalDate visaIssueDate) {
+		this.visaIssueDate = visaIssueDate;
+	}
+
+	public LocalDate getVisaValidate() {
+		return visaValidate;
+	}
+
+	public void setVisaValidate(LocalDate visaValidate) {
+		this.visaValidate = visaValidate;
+	}
+
+	public LocalDate getEntryDate() {
+		return entryDate;
+	}
+
+	public void setEntryDate(LocalDate entryDate) {
+		this.entryDate = entryDate;
+	}
+
+	public GeneralData getAcademicLevel() {
+		return academicLevel;
+	}
+
+	public void setAcademicLevel(GeneralData academicLevel) {
+		this.academicLevel = academicLevel;
+	}
+
+	public String getEmployer() {
+		return employer;
+	}
+
+	public void setEmployer(String employer) {
+		this.employer = employer;
+	}
+	
+	public String getWorkPhoneNumber() {
+		return workPhoneNumber;
+	}
+
+	public void setWorkPhoneNumber(String workPhoneNumber) {
+		this.workPhoneNumber = workPhoneNumber;
 	}
 
 	@Override

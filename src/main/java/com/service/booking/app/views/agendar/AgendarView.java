@@ -2,6 +2,7 @@ package com.service.booking.app.views.agendar;
 
 import com.service.booking.app.constants.Constants;
 import com.service.booking.app.constants.Labels;
+import com.service.booking.app.utils.documents.DocumentRequirement;
 import com.service.booking.app.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -28,7 +29,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 
 
 @PageTitle("Agendar Serviço | SIGAV - Sistema de Gestão de Agendamentos e Validações")
-@Route(value = "agendar", layout = MainLayout.class)
+@Route(value = "/", layout = MainLayout.class)
 @AnonymousAllowed
 public class AgendarView extends VerticalLayout {
 	
@@ -48,6 +49,8 @@ public class AgendarView extends VerticalLayout {
 	private Image imgNational;
 	private Image imgForeign;
 	
+	private DocumentRequirement requirements = new DocumentRequirement();
+	
 	public AgendarView() {
 		
 		 setAlignItems(Alignment.CENTER);
@@ -61,7 +64,7 @@ public class AgendarView extends VerticalLayout {
 			
 		 add(serviceToolBarTitle, createToolbar());
 		 cardNational(cardNationalTitle, cardSubTitle);
-		 cardForeign(cardForeignTitle, cardSubTitle);	
+		 cardForeign(cardForeignTitle, cardSubTitle);
 	}
 	
 	private Component createToolbar() {
@@ -199,32 +202,40 @@ public class AgendarView extends VerticalLayout {
         VerticalLayout visaExtensionLayout = new VerticalLayout();
         visaExtensionLayout.setSpacing(false);
         visaExtensionLayout.setPadding(false);
-        visaExtensionLayout.add(visaExtensionConfirmDialog(Constants.VISA_B21));
+        visaExtensionLayout.add(visaExtensionConfirmDialog(Constants.VISA_B21), visaExtensionConfirmDialog(Constants.VISA_B24),
+        		visaExtensionConfirmDialog(Constants.VISA_B25), visaExtensionConfirmDialog(Constants.VISA_B26),
+        		visaExtensionConfirmDialog(Constants.VISA_B27));
 
         AccordionPanel visaExtensionPanel = accordion.add("PRORROGAÇÃO DE VISTOS",
                 visaExtensionLayout);
         visaExtensionPanel.addThemeVariants(DetailsVariant.FILLED);
-
-        Span cardBrand = new Span("Mastercard");
-        Span cardNumber = new Span("1234 5678 9012 3456");
-        Span expiryDate = new Span("Expires 06/21");
-
-        VerticalLayout paymentLayout = new VerticalLayout();
-        paymentLayout.setSpacing(false);
-        paymentLayout.setPadding(false);
-        paymentLayout.add(cardBrand, cardNumber, expiryDate);
-
-        AccordionPanel paymentPanel = accordion.add("D.I.R.E", paymentLayout);
-        paymentPanel.addThemeVariants(DetailsVariant.FILLED);
         
-        Span cardFieldName = new Span("Mastercard");
-        Span cardFieldNumber = new Span("1234 5678 9012 3456");
-        Span fieldExpiryDate = new Span("Expires 06/21");
+        VerticalLayout workVisaExtensionLayout = new VerticalLayout();
+        workVisaExtensionLayout.setSpacing(false);
+        workVisaExtensionLayout.setPadding(false);
+        workVisaExtensionLayout.add(workVisaExtensionConfirmDialog(Constants.VISA_B231), workVisaExtensionConfirmDialog(Constants.VISA_B232),
+        		workVisaExtensionConfirmDialog(Constants.VISA_B233));
+
+        AccordionPanel workVisaExtensionPanel = accordion.add("PRORROGAÇÃO DE VISTO DE TRABALHO",
+        		workVisaExtensionLayout);
+        workVisaExtensionPanel.addThemeVariants(DetailsVariant.FILLED);
+
+        VerticalLayout direLayout = new VerticalLayout();
+        direLayout.setSpacing(false);
+        direLayout.setPadding(false);
+        direLayout.add(createDireConfirmDialog(Constants.DIRE_B38), createDireConfirmDialog(Constants.DIRE_B31), createDireConfirmDialog(Constants.DIRE_B32),
+        		createDireConfirmDialog(Constants.DIRE_B33), createDireConfirmDialog(Constants.DIRE_B34), createDireConfirmDialog(Constants.DIRE_B35),
+        		createDireConfirmDialog(Constants.DIRE_B36), createDireConfirmDialog(Constants.DIRE_B37));       
+        
+        AccordionPanel direPanel = accordion.add("D.I.R.E", direLayout);
+        direPanel.addThemeVariants(DetailsVariant.FILLED);
         
         VerticalLayout docVRefugiadoLayout = new VerticalLayout();
         docVRefugiadoLayout.setSpacing(false);
         docVRefugiadoLayout.setPadding(false);
-        docVRefugiadoLayout.add(cardFieldName, cardFieldNumber, fieldExpiryDate);
+        docVRefugiadoLayout.add(createDocumentConfirmDialog(Constants.DOCUMENT_B4), createDocumentConfirmDialog(Constants.DOCUMENT_B5),
+        		createDocumentConfirmDialog(Constants.DOCUMENT_B8), createDocumentConfirmDialog(Constants.DOCUMENT_B7), createDocumentConfirmDialog(Constants.DOCUMENT_B6),
+        		createDocumentConfirmDialog(Constants.DOCUMENT_B9));
         
         AccordionPanel docViagemRefugiadosPanel = accordion.add("DOCUMENTO DE VIAGEM PARA REFUGIADOS (B4)", docVRefugiadoLayout);
         docViagemRefugiadosPanel.addThemeVariants(DetailsVariant.FILLED);
@@ -249,7 +260,7 @@ public class AgendarView extends VerticalLayout {
         if(passportType.equals(Constants.PASSPORT_A11)) {
         	dialog.setHeader(Labels.DOCUMENT_TYPE_PASSPORT_A11);
             dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-            dialog.add(passportA11Requirements());
+            dialog.add(requirements.passportA11Requirements());
             dialog.setConfirmButtonTheme("success primary");
             
             dialog.addConfirmListener(event -> navigateToView("/passaportA11"));
@@ -258,7 +269,7 @@ public class AgendarView extends VerticalLayout {
         	if(passportType.equals(Constants.PASSPORT_A12)) {
         		dialog.setHeader(Labels.DOCUMEMT_TYPE_PASSPORT_A12);
                 dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-                dialog.add(passportA12Requirements());
+                dialog.add(requirements.passportA12Requirements());
                 dialog.setConfirmButtonTheme("success primary");
                 
         		dialog.addConfirmListener(event -> navigateToView("/passaportA12"));
@@ -267,7 +278,7 @@ public class AgendarView extends VerticalLayout {
         		if(passportType.equals(Constants.PASSPORT_A13)) {
         			dialog.setHeader(Labels.DOCUMEMT_TYPE_PASSPORT_A13);
                     dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-                    dialog.add(passportA13Requirements());
+                    dialog.add(requirements.passportA13Requirements());
                     dialog.setConfirmButtonTheme("success primary");
         			
         			dialog.addConfirmListener(event -> navigateToView("/passaportA13"));
@@ -276,7 +287,7 @@ public class AgendarView extends VerticalLayout {
         			if(passportType.equals(Constants.PASSPORT_A14)) {
             			dialog.setHeader(Labels.DOCUMEMT_TYPE_PASSPORT_A14);
                         dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-                        dialog.add(passportA14Requirements());
+                        dialog.add(requirements.passportA14Requirements());
                         dialog.setConfirmButtonTheme("success primary");
             			
             			dialog.addConfirmListener(event -> navigateToView("/passaportA14"));
@@ -285,7 +296,7 @@ public class AgendarView extends VerticalLayout {
             			if(passportType.equals(Constants.DOCUMENT_A2)){
             				dialog.setHeader(Labels.DOCUMENT_TYPE_TRAVEL_A2);
                             dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-                            dialog.add(documentA2Requirements());
+                            dialog.add(requirements.documentA2Requirements());
                             dialog.setConfirmButtonTheme("success primary");
 		        			
                             dialog.addConfirmListener(event -> navigateToView("/documentA2"));
@@ -294,7 +305,7 @@ public class AgendarView extends VerticalLayout {
 	        			if(passportType.equals(Constants.VISA_B21)){
 	            			dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B21);
 	                        dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-	                        dialog.add(visaRequirements());
+	                        dialog.add(requirements.visaRequirements());
 	                        dialog.setConfirmButtonTheme("success primary");
 	            			
 	            			dialog.addConfirmListener(event -> navigateToView("/visaB17"));
@@ -303,7 +314,7 @@ public class AgendarView extends VerticalLayout {
             			else {
 	        			dialog.setHeader(Labels.DOCUMENT_TYPE_EMERGENCY_CERTIFICATE_A3);
                         dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-                        dialog.add(certificateA2Requirements());
+                        dialog.add(requirements.certificateA2Requirements());
                         dialog.setConfirmButtonTheme("success primary");
 	        			
 	        			dialog.addConfirmListener(event -> navigateToView("/certificateA2"));
@@ -339,7 +350,7 @@ public class AgendarView extends VerticalLayout {
         if(documentType.equals(Constants.VISA_B11)) {
         	dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B11);
             dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-            dialog.add(visaRequirements());
+            dialog.add(requirements.visaRequirements());
             dialog.setConfirmButtonTheme("success primary");
             
             dialog.addConfirmListener(event -> navigateToView("/visaB11"));
@@ -348,7 +359,7 @@ public class AgendarView extends VerticalLayout {
         	if(documentType.equals(Constants.VISA_B12)) {
         		dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B12);
                 dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-                dialog.add(visaRequirements());
+                dialog.add(requirements.visaRequirements());
                 dialog.setConfirmButtonTheme("success primary");
                 
         		dialog.addConfirmListener(event -> navigateToView("/visaB12"));
@@ -357,7 +368,7 @@ public class AgendarView extends VerticalLayout {
         		if(documentType.equals(Constants.VISA_B14)) {
         			dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B14);
                     dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-                    dialog.add(visaRequirements());
+                    dialog.add(requirements.visaRequirements());
                     dialog.setConfirmButtonTheme("success primary");
         			
         			dialog.addConfirmListener(event -> navigateToView("/visaB14"));
@@ -366,30 +377,31 @@ public class AgendarView extends VerticalLayout {
         			if(documentType.equals(Constants.VISA_B15)) {
             			dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B15);
                         dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-                        dialog.add(visaRequirements());
+                        dialog.add(requirements.visaRequirements());
                         dialog.setConfirmButtonTheme("success primary");
             			
             			dialog.addConfirmListener(event -> navigateToView("/visaB15"));
                         button = new Button(Labels.DOCUMENT_TYPE_VISA_B15);
             		}else 
-            			if(documentType.equals(Constants.VISA_B16)){
+            		if(documentType.equals(Constants.VISA_B16)){
             				dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B16);
                             dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-                            dialog.add(visaRequirements());
+                            dialog.add(requirements.visaRequirements());
                             dialog.setConfirmButtonTheme("success primary");
 		        			
                             dialog.addConfirmListener(event -> navigateToView("/visaB16"));
 		                    button = new Button(Labels.DOCUMENT_TYPE_VISA_B16);
-	        		}else 
-		        		 {
-		        			dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B17);
-	                        dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-	                        dialog.add(visaRequirements());
-	                        dialog.setConfirmButtonTheme("success primary");
+	        		}else {
+	        			{
+            				dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B17);
+                            dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+                            dialog.add(requirements.visaRequirements());
+                            dialog.setConfirmButtonTheme("success primary");
 		        			
-		        			dialog.addConfirmListener(event -> navigateToView("/visaB17"));
+                            dialog.addConfirmListener(event -> navigateToView("/visaB17"));
 		                    button = new Button(Labels.DOCUMENT_TYPE_VISA_B17);
-		        		}
+	        		}
+	        		}
         
         dialog.setWidth("50%");
         
@@ -419,7 +431,7 @@ public class AgendarView extends VerticalLayout {
         if(documentType.equals(Constants.VISA_B131)) {
         	dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B131);
             dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-            dialog.add(visaRequirements());
+            dialog.add(requirements.visaRequirements());
             dialog.setConfirmButtonTheme("success primary");
             
             dialog.addConfirmListener(event -> navigateToView("/visaB131"));
@@ -428,20 +440,20 @@ public class AgendarView extends VerticalLayout {
         	if(documentType.equals(Constants.VISA_B132)) {
     			dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B132);
                 dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-                dialog.add(visaRequirements());
+                dialog.add(requirements.visaRequirements());
                 dialog.setConfirmButtonTheme("success primary");
     			
     			dialog.addConfirmListener(event -> navigateToView("/visaB132"));
                 button = new Button(Labels.DOCUMENT_TYPE_VISA_B132);
     		}else
         		 {
-        			dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B17);
+        			dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B133);
                     dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-                    dialog.add(visaRequirements());
+                    dialog.add(requirements.visaRequirements());
                     dialog.setConfirmButtonTheme("success primary");
         			
-        			dialog.addConfirmListener(event -> navigateToView("/visaB17"));
-                    button = new Button(Labels.DOCUMENT_TYPE_VISA_B17);
+        			dialog.addConfirmListener(event -> navigateToView("/visaB133"));
+                    button = new Button(Labels.DOCUMENT_TYPE_VISA_B133);
         		}
 		        		
         
@@ -455,6 +467,200 @@ public class AgendarView extends VerticalLayout {
         
         return div;
     }
+	
+	public Component createDireConfirmDialog(String documentType) {
+		HorizontalLayout layout = new HorizontalLayout();
+        Div div = new Div();
+        Button button;
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+
+        ConfirmDialog dialog = new ConfirmDialog();
+
+        dialog.setCancelable(true);
+        dialog.setCancelText(Constants.CANCEL);
+        dialog.setCancelButtonTheme("error primary");
+        dialog.setConfirmText(Constants.REQUEST_DOCUMENT);
+        
+        if(documentType.equals(Constants.DIRE_B38)) {
+        	dialog.setHeader(Labels.DOCUMENT_TYPE_DIRE_B38);
+            dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+            dialog.add(requirements.direRequirementsB38());
+            dialog.setConfirmButtonTheme("success primary");
+            
+            dialog.addConfirmListener(event -> navigateToView("/direB38"));
+            button = new Button(Labels.DOCUMENT_TYPE_DIRE_B38);
+        }else
+        	if(documentType.equals(Constants.DIRE_B31))
+		 {
+			dialog.setHeader(Labels.DOCUMENT_TYPE_DIRE_B31);
+           dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+           dialog.add(requirements.direRequirementsB31());
+           dialog.setConfirmButtonTheme("success primary");
+			
+			dialog.addConfirmListener(event -> navigateToView("/direB31"));
+           button = new Button(Labels.DOCUMENT_TYPE_DIRE_B31);
+		}
+        else
+        	if(documentType.equals(Constants.DIRE_B32))
+			{
+        	   dialog.setHeader(Labels.DOCUMENT_TYPE_DIRE_B32);
+	           dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+	           dialog.add(requirements.direRequirementsB32());
+	           dialog.setConfirmButtonTheme("success primary");
+				
+				dialog.addConfirmListener(event -> navigateToView("/direB32"));
+	           button = new Button(Labels.DOCUMENT_TYPE_DIRE_B32);
+			}else
+				if(documentType.equals(Constants.DIRE_B33))
+				{
+	        	   dialog.setHeader(Labels.DOCUMENT_TYPE_DIRE_B33);
+		           dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+		           dialog.add(requirements.direRequirementsB33());
+		           dialog.setConfirmButtonTheme("success primary");
+					
+					dialog.addConfirmListener(event -> navigateToView("/direB33"));
+		           button = new Button(Labels.DOCUMENT_TYPE_DIRE_B33);
+				}
+				else
+					if(documentType.equals(Constants.DIRE_B34))
+					{
+		        	   dialog.setHeader(Labels.DOCUMENT_TYPE_DIRE_B34);
+			           dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+			           dialog.add(requirements.direRequirementsB34());
+			           dialog.setConfirmButtonTheme("success primary");
+						
+						dialog.addConfirmListener(event -> navigateToView("/direB34"));
+			           button = new Button(Labels.DOCUMENT_TYPE_DIRE_B34);
+					}
+					else 
+						if(documentType.equals(Constants.DIRE_B35)) {
+						   dialog.setHeader(Labels.DOCUMENT_TYPE_DIRE_B35);
+				           dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+				           dialog.add(requirements.direRequirementsB35());
+				           dialog.setConfirmButtonTheme("success primary");
+							
+						   dialog.addConfirmListener(event -> navigateToView("/direB35"));
+				           button = new Button(Labels.DOCUMENT_TYPE_DIRE_B35);
+						}
+						else 
+							if(documentType.equals(Constants.DIRE_B36)) {
+							   dialog.setHeader(Labels.DOCUMENT_TYPE_DIRE_B36);
+					           dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+					           dialog.add(requirements.direRequirementsB36());
+					           dialog.setConfirmButtonTheme("success primary");
+								
+							   dialog.addConfirmListener(event -> navigateToView("/direB36"));
+					           button = new Button(Labels.DOCUMENT_TYPE_DIRE_B36);
+						}else {
+							   dialog.setHeader(Labels.DOCUMENT_TYPE_DIRE_B37);
+					           dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+					           dialog.add(requirements.direRequirementsB37());
+					           dialog.setConfirmButtonTheme("success primary");
+								
+							   dialog.addConfirmListener(event -> navigateToView("/direB37"));
+					           button = new Button(Labels.DOCUMENT_TYPE_DIRE_B37);
+						}
+							
+       		
+		dialog.setWidth("50%");
+		
+		button.addClickListener(event -> {
+		   dialog.open();
+		});
+		
+		div.add(button);
+	
+		return div;
+
+	}
+	
+	public Component createDocumentConfirmDialog(String documentType) {
+		HorizontalLayout layout = new HorizontalLayout();
+        Div div = new Div();
+        Button button;
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+
+        ConfirmDialog dialog = new ConfirmDialog();
+
+        dialog.setCancelable(true);
+        dialog.setCancelText(Constants.CANCEL);
+        dialog.setCancelButtonTheme("error primary");
+        dialog.setConfirmText(Constants.REQUEST_DOCUMENT);
+        
+        if(documentType.equals(Constants.DOCUMENT_B4)) {
+        	dialog.setHeader(Labels.DOCUMENT_TYPE_TRIP_B4);
+            dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+            dialog.add(requirements.documentRequirementsB4());
+            dialog.setConfirmButtonTheme("success primary");
+            
+            dialog.addConfirmListener(event -> navigateToView("/documentB4"));
+            button = new Button(Labels.DOCUMENT_TYPE_TRIP_B4);
+        }else
+        	if(documentType.equals(Constants.DOCUMENT_B5))
+        	{
+        		dialog.setHeader(Labels.DOCUMENT_TYPE_TRIP_B5);
+	            dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+	            dialog.add(requirements.documentRequirementsB6());
+	            dialog.setConfirmButtonTheme("success primary");
+				
+				dialog.addConfirmListener(event -> navigateToView("/documentB5"));
+				button = new Button(Labels.DOCUMENT_TYPE_TRIP_B5);
+		}
+        else
+        	if(documentType.equals(Constants.DOCUMENT_B8))
+			{
+        	   dialog.setHeader(Labels.DOCUMENT_TYPE_TRIP_B8);
+	           //dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+	           dialog.add(requirements.documentNoRequirements());
+	           dialog.setConfirmButtonTheme("success primary");
+				
+				dialog.addConfirmListener(event -> navigateToView("/documentB8"));
+	           button = new Button(Labels.DOCUMENT_TYPE_TRIP_B8);
+			}else
+				if(documentType.equals(Constants.DOCUMENT_B7))
+				{
+	        	   dialog.setHeader(Labels.DOCUMENT_TYPE_TRIP_B7);
+		           //dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+		           dialog.add(requirements.documentNoRequirements());
+		           dialog.setConfirmButtonTheme("success primary");
+					
+					dialog.addConfirmListener(event -> navigateToView("/documentB7"));
+		           button = new Button(Labels.DOCUMENT_TYPE_TRIP_B7);
+				}
+				else
+					if(documentType.equals(Constants.DOCUMENT_B6))
+					{
+		        	   dialog.setHeader(Labels.DOCUMENT_TYPE_TRIP_B6);
+			           //dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+			           dialog.add(requirements.documentNoRequirements());
+			           dialog.setConfirmButtonTheme("success primary");
+						
+			           dialog.addConfirmListener(event -> navigateToView("/documentB6"));
+			           button = new Button(Labels.DOCUMENT_TYPE_TRIP_B6);
+					}
+					else{
+						   dialog.setHeader(Labels.DOCUMENT_TYPE_TRIP_B9);
+				           //dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+				           dialog.add(requirements.documentNoRequirements());
+				           dialog.setConfirmButtonTheme("success primary");
+							
+						   dialog.addConfirmListener(event -> navigateToView("/documentB9"));
+				           button = new Button(Labels.DOCUMENT_TYPE_TRIP_B9);
+						}
+							
+		dialog.setWidth("50%");
+		
+		button.addClickListener(event -> {
+		   dialog.open();
+		});
+		
+		div.add(button);
+	
+		return div;
+
+	}
 	
 	public Component visaExtensionConfirmDialog(String documentType) {
         HorizontalLayout layout = new HorizontalLayout();
@@ -473,21 +679,48 @@ public class AgendarView extends VerticalLayout {
         if(documentType.equals(Constants.VISA_B21)) {
         	dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B21);
             dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-            dialog.add(visaExtensionB21Requirements());
+            dialog.add(requirements.visaExtensionRequirements());
             dialog.setConfirmButtonTheme("success primary");
             
             dialog.addConfirmListener(event -> navigateToView("/visaB21"));
             button = new Button(Labels.DOCUMENT_TYPE_VISA_B21);
-        }else
-        {
-			dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B17);
-            dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
-            dialog.add(visaRequirements());
-            dialog.setConfirmButtonTheme("success primary");
-			
-			dialog.addConfirmListener(event -> navigateToView("/visaB17"));
-            button = new Button(Labels.DOCUMENT_TYPE_VISA_B17);
-		}
+        }else 
+        	if(documentType.equals(Constants.VISA_B24))
+	        {
+				dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B24);
+	            dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+	            dialog.add(requirements.visaExtensionB24Requirements());
+	            dialog.setConfirmButtonTheme("success primary");
+				
+				dialog.addConfirmListener(event -> navigateToView("/visaB24"));
+	            button = new Button(Labels.DOCUMENT_TYPE_VISA_B24);
+			}else 
+				if(documentType.equals(Constants.VISA_B25)){
+					dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B25);
+		            dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+		            dialog.add(requirements.visaExtensionRequirements());
+		            dialog.setConfirmButtonTheme("success primary");
+					
+					dialog.addConfirmListener(event -> navigateToView("/visaB25"));
+		            button = new Button(Labels.DOCUMENT_TYPE_VISA_B25);
+			}else 
+				if(documentType.equals(Constants.VISA_B26)){
+				dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B26);
+	            dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+	            dialog.add(requirements.visaExtensionB26Requirements());
+	            dialog.setConfirmButtonTheme("success primary");
+				
+				dialog.addConfirmListener(event -> navigateToView("/visaB26"));
+	            button = new Button(Labels.DOCUMENT_TYPE_VISA_B26);
+			}else {
+				dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B27);
+	            dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+	            dialog.add(requirements.visaExtensionB27Requirements());
+	            dialog.setConfirmButtonTheme("success primary");
+				
+				dialog.addConfirmListener(event -> navigateToView("/visaB27"));
+	            button = new Button(Labels.DOCUMENT_TYPE_VISA_B27);
+			}
 		        		
         
         dialog.setWidth("50%");
@@ -501,127 +734,57 @@ public class AgendarView extends VerticalLayout {
         return div;
     }
 	
-	private Component passportA11Requirements() {
-		// Create an UnorderedList component
-        UnorderedList unorderedList = new UnorderedList();
+	public Component workVisaExtensionConfirmDialog(String documentType) {
+        HorizontalLayout layout = new HorizontalLayout();
+        Div div = new Div();
+        Button button;
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
-        // Create and add list items to the UnorderedList
-        ListItem item1 = new ListItem(Labels.DOCUMENT_REQUIREMENT_ID_M18);
-        ListItem item2 = new ListItem(Labels.DOCUMENT_REQUIREMENT_EXPIRED_PASSPORT);
-        ListItem item3 = new ListItem(Labels.DOCUMENT_REQUIREMENT_POLICE_STATEMENT);
+        ConfirmDialog dialog = new ConfirmDialog();
 
-        unorderedList.add(item1, item2, item3);
-        
-        // Add the UnorderedList to the main view
-        return unorderedList;
-	}
-	
-	private Component passportA12Requirements() {
-		// Create an UnorderedList component
-        UnorderedList unorderedList = new UnorderedList();
-        
-        // Create and add list items to the UnorderedList
-        ListItem item1 = new ListItem(Labels.DOCUMENT_REQUIREMENT_ID_UNDER_18);
-        ListItem item2 = new ListItem(Labels.DOCUMENT_REQUIREMENT_LEGAL_REPRESENTATIVE_ID);
-        ListItem item3 = new ListItem(Labels.DOCUMENT_REQUIREMENT_LEGAL_REPRESENTATIVE_DECLARETION);
+        dialog.setCancelable(true);
+        dialog.setCancelText(Constants.CANCEL);
+        dialog.setCancelButtonTheme("error primary");
+        dialog.setConfirmText(Constants.REQUEST_DOCUMENT);
 
-        unorderedList.add(item1, item2, item3);
+        if(documentType.equals(Constants.VISA_B231)){
+			dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B231);
+            dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+            dialog.add(requirements.visaExtensionB231Requirements());
+            dialog.setConfirmButtonTheme("success primary");
+			
+			dialog.addConfirmListener(event -> navigateToView("/visaB231"));
+            button = new Button(Labels.DOCUMENT_TYPE_VISA_B231);
+		}else 
+			if(documentType.equals(Constants.VISA_B232)){
+				dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B232);
+	            dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+	            dialog.add(requirements.visaExtensionB232Requirements());
+	            dialog.setConfirmButtonTheme("success primary");
+				
+				dialog.addConfirmListener(event -> navigateToView("/visaB232"));
+	            button = new Button(Labels.DOCUMENT_TYPE_VISA_B232);
+			}else {
+				dialog.setHeader(Labels.DOCUMENT_TYPE_VISA_B233);
+	            dialog.add(new H4(Labels.DOCUMENT_REQUEST_REQUIREMENTS_TITLE));
+	            dialog.add(requirements.visaExtensionB233Requirements());
+	            dialog.setConfirmButtonTheme("success primary");
+				
+				dialog.addConfirmListener(event -> navigateToView("/visaB233"));
+	            button = new Button(Labels.DOCUMENT_TYPE_VISA_B233);
+		}		        		
         
-        // Add the UnorderedList to the main view
-        return unorderedList;
-	}
-	
-	private Component passportA13Requirements() {
-		// Create an UnorderedList component
-        UnorderedList unorderedList = new UnorderedList();
+        dialog.setWidth("50%");
         
-        // Create and add list items to the UnorderedList
-        ListItem item1 = new ListItem(Labels.DOCUMENT_REQUIREMENT_ID_DOC);
-        ListItem item2 = new ListItem(Labels.DOCUMENT_REQUIREMENT_MZ_NATIONALITY_AQUISITION);
-        ListItem item3 = new ListItem(Labels.DOCUMENT_REQUIREMENT_BIRTH_SEAT);
-        ListItem item4 = new ListItem(Labels.DOCUMENT_REQUIREMENT_WEDDING_SEAT);
-        ListItem item5 = new ListItem(Labels.DOCUMENT_REQUIREMENT_SPOUSES_ID_CARD);
-        ListItem item6 = new ListItem(Labels.DOCUMENT_REQUIREMENT_DIRE_RETURN_LETTER);
+        button.addClickListener(event -> {
+            dialog.open();
+        });
 
-        unorderedList.add(item1, item2, item3, item4, item5, item6);
+        div.add(button);
         
-        // Add the UnorderedList to the main view
-        return unorderedList;
-	}
-	
-	private Component passportA14Requirements() {
-		// Create an UnorderedList component
-        UnorderedList unorderedList = new UnorderedList();
-        
-        // Create and add list items to the UnorderedList
-        ListItem item1 = new ListItem(Labels.DOCUMENT_REQUIREMENT_ID_UNDER_18);
-        ListItem item2 = new ListItem(Labels.DOCUMENT_REQUIREMENT_LEGAL_REPRESENTATIVE_DECLARETION);
-        ListItem item3 = new ListItem(Labels.DOCUMENT_REQUIREMENT_MZ_NATIONALITY_ATRIBUITION);
-        ListItem item4 = new ListItem(Labels.DOCUMENT_REQUIREMENT_BIRTH__OF_MINOR_SEAT);
-        ListItem item5 = new ListItem(Labels.DOCUMENT_REQUIREMENT_RESIDENCE_IN_NATIONAL_TERRITORY);
-
-        unorderedList.add(item1, item2, item3, item4, item5);
-        
-        // Add the UnorderedList to the main view
-        return unorderedList;
-	}
-	
-	private Component documentA2Requirements() {
-		// Create an UnorderedList component
-        UnorderedList unorderedList = new UnorderedList();
-        
-        // Create and add list items to the UnorderedList
-        ListItem item1 = new ListItem(Labels.DOCUMENT_REQUIREMENT_ID_DOC);
-        ListItem item2 = new ListItem(Labels.DOCUMENT_REQUIREMENT_EMPLOYMENT_CONTRACT);
-        ListItem item3 = new ListItem(Labels.DOCUMENT_REQUIREMENT_MINER_ID_CARD);
-        ListItem item4 = new ListItem(Labels.DOCUMENT_REQUIREMENT_EMPLOYMENT_CONTRACT_IN_FARMS);
-
-        unorderedList.add(item1, item2, item3, item4);
-        
-        // Add the UnorderedList to the main view
-        return unorderedList;
-	}
-
-	private Component certificateA2Requirements() {
-		// Create an UnorderedList component
-        UnorderedList unorderedList = new UnorderedList();
-        
-        // Create and add list items to the UnorderedList
-        ListItem item1 = new ListItem(Labels.DOCUMENT_REQUIREMENT_ID_DOC);
-        ListItem item2 = new ListItem(Labels.DOCUMENT_REQUIREMENT_DECLARATION_OF_THE_LEGAL_REPRESENTATIVE);
-        ListItem item3 = new ListItem(Labels.DOCUMENT_REQUIREMENT_WAITING_TICKET_AND_BIRTH_CERTIFICATE);
-
-        unorderedList.add(item1, item2, item3);
-        
-        // Add the UnorderedList to the main view
-        return unorderedList;
-	}
-	
-	private Component visaRequirements() {
-		UnorderedList unorderedList = new UnorderedList();
-        
-        ListItem item1 = new ListItem(Labels.DOCUMENT_REQUIREMENT_CONTACT_EMBASSY);
-        
-        unorderedList.add(item1);
-        
-        return unorderedList;
-	}
-	
-	private Component visaExtensionB21Requirements() {
-		UnorderedList unorderedList = new UnorderedList();
-        
-        ListItem item1 = new ListItem(Labels.DOCUMENT_REQUIREMENT_INVESTMENT_PROOF);
-        ListItem item2 = new ListItem(Labels.DOCUMENT_REQUIREMENT_ACCOMMODATION_PROOF);
-        ListItem item3 = new ListItem(Labels.DOCUMENT_REQUIREMENT_INSS_CERTIFICATE);
-        ListItem item4 = new ListItem(Labels.DOCUMENT_REQUIREMENT_REQUEST_LETTER);
-        ListItem item5 = new ListItem(Labels.DOCUMENT_REQUIREMENT_PASSPORT_COPY);
-        ListItem item6 = new ListItem(Labels.DOCUMENT_REQUIREMENT_COPY_PREVIOUS_INVEST_VISA);
-        ListItem item7 = new ListItem(Labels.DOCUMENT_REQUIREMENT_CRIMINAL_RECORD_OPTIONAL);
-        
-        unorderedList.add(item1,item2,item3,item4,item5,item6,item7);
-        
-        return unorderedList;
-	}
+        return div;
+    }	
 	
 	private void navigateToView(String route) {
 		getUI().ifPresent(ui -> ui.navigate(route));

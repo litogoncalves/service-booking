@@ -9,6 +9,7 @@ public interface StatusService {
 
 	public void save(Status status);
 	public List<Status> findAll();
+	public List<Status> findStatusByCodes();
 	public Status getStatus(Integer statusId); 
 	public Status getStatusByCode(String code);
 }

@@ -17,4 +17,8 @@ public class Notifications {
 			+ "</br>\n"
 			+ "<small style=\"color: gray;\">SIGAV - Sistema de Gestão de Agendamentos e Validações</small>";
 	
+	//SMS MESSAGES
+	public static final String SMS_BOOKING_SUCCESS = "Caro(a) cidadão #name, informamos que o seu agendamento com o código "
+			+ "#code para emissão de #doc foi APROVADO. Dirija-se a #local no dia #date. SENAMI";
+	
 }

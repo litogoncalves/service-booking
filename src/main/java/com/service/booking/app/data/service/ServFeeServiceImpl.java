@@ -37,4 +37,9 @@ public class ServFeeServiceImpl implements ServFeeService {
 		return repository.findForeignServiceFeeByStatus(Constants.STATUS_ACTIVE_CODE);
 	}
 
+	@Override
+	public List<ServiceFee> findVisaExtendServiceFee() {
+		return repository.findVisaExtendServiceFeeByStatus(Constants.STATUS_ACTIVE_CODE);
+	}
+
 }

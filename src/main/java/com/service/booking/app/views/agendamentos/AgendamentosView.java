@@ -15,6 +15,7 @@ import com.service.booking.app.data.entity.Province;
 import com.service.booking.app.data.service.BookingLogsService;
 import com.service.booking.app.data.service.BookingService;
 import com.service.booking.app.data.service.EmailReportService;
+import com.service.booking.app.data.service.SmsReportService;
 import com.service.booking.app.data.service.StatusService;
 import com.service.booking.app.http.controller.NotificationManager;
 import com.service.booking.app.utils.BookingUtils;
@@ -82,6 +83,7 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
 	private final BookingLogsService bookingLogsService;
 	private final StatusService statusService;
 	private final EmailReportService emailSendingReportService;
+	private final SmsReportService smsReportService;
 
 	private NotificationManager notificationManager;
 	
@@ -109,7 +111,7 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
 	private Button rescheduleBtn;
 	
     public AgendamentosView(BookingService bookingService, StatusService statusService, BookingLogsService bookingLogsService,
-    		EmailReportService emailSendingReportService) {
+    		EmailReportService emailSendingReportService, SmsReportService smsReportService) {
     	
 		setAlignItems(Alignment.CENTER);
 		
@@ -117,6 +119,7 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
 		this.statusService = statusService;
 		this.bookingLogsService = bookingLogsService;
 		this.emailSendingReportService = emailSendingReportService;
+		this.smsReportService = smsReportService;
 		
         createVariables();
         createSearchOptions();
@@ -449,7 +452,7 @@ public class AgendamentosView extends VerticalLayout{ // Composite<VerticalLayou
             	updateGrid();
             	
             	if(booking.getEmailReq() != null) {
-					notificationManager = new NotificationManager(emailSendingReportService);
+					notificationManager = new NotificationManager(emailSendingReportService, smsReportService);
 					
 					String htmlBody = Notifications.EMAIL_HTML_BODY_BOOKING_CANCELED;
 					htmlBody = htmlBody.replace("#fullname", booking.getNameReq().concat(" ").concat(booking.getSurnameReq()))

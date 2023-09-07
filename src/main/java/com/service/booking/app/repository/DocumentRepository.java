@@ -18,4 +18,7 @@ public interface DocumentRepository extends JpaRepository<Document, Integer>{
 	
 	@Query("SELECT d FROM Document d WHERE d.name in ('novo', 'new', 'Nouveau') and d.category = :category AND d.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
     List<Document> findForeignDocs(@Param("category") String category, @Param("statusCode") String statusCode);
+	
+	@Query("SELECT d FROM Document d WHERE d.name in ('Renovação', 'Renewal', 'Renew', 'Rénovation') and d.category = :category AND d.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
+    List<Document> findExtendVisaDocs(@Param("category") String category, @Param("statusCode") String statusCode);
 }

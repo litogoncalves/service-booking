@@ -39,4 +39,9 @@ public class StatusServiceImpl implements StatusService {
 		return repository.getStatusByCode(code);
 	}
 
+	@Override
+	public List<Status> findStatusByCodes() {
+		return repository.findStatusByCodes();
+	}
+
 }

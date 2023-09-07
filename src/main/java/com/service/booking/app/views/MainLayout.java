@@ -141,7 +141,7 @@ public class MainLayout extends AppLayout {
         } else {
         	Anchor bookingLink = new Anchor("agendar", "AGENDAR SERVIÇO");
         	bookingLink.addClassNames("btn-nav-link", "nav-cta");
-            Anchor loginLink = new Anchor("login", "SIGN IN");
+            Anchor loginLink = new Anchor("login", "ENTRAR");
             loginLink.addClassNames("login-nav-link", "nav-cta");
             layout.add(bookingLink, loginLink);
         }
@@ -167,7 +167,7 @@ public class MainLayout extends AppLayout {
 
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{ //
-                new MenuItemInfo("Home", LineAwesomeIcon.HOME_SOLID.create(), HomeView.class), //
+                //new MenuItemInfo("Home", LineAwesomeIcon.HOME_SOLID.create(), HomeView.class), //
 
                new MenuItemInfo("Agendar Serviço", LineAwesomeIcon.CALENDAR_DAY_SOLID.create(), AgendarView.class), //
                

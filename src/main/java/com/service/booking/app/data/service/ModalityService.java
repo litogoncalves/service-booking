@@ -17,4 +17,5 @@ public interface ModalityService {
 	public List<Modality> findAll();
 	public Modality getModality(Integer modalityId);
 	public List<Modality> findModalityByCategory(String category);
+	public List<Modality> findModalityVisaExtend();
 }

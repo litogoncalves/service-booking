@@ -37,4 +37,9 @@ public class DocumentServiceImpl implements DocumentService{
 		return repository.findForeignDocs(category, Constants.STATUS_ACTIVE_CODE);
 	}
 
+	@Override
+	public List<Document> findExtendVisaDocs(String category) {
+		return repository.findExtendVisaDocs(category, Constants.STATUS_ACTIVE_CODE);
+	}
+
 }

@@ -1,5 +1,6 @@
 package com.service.booking.app.data.service;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -99,4 +100,24 @@ public class BookingServiceImpl implements BookingService{
 		return repository.getBookingByPassportNumberAndStatusAndDate(passportNumber, serviceId, statusCode);
 	}
 
+	@Override
+	public List<Booking> findByFilters(LocalDate dateFrom, LocalDate dateTo, String statusCode) {
+		return repository.findByDatesAndStatus(dateFrom, dateTo, statusCode);
+	}
+
+	@Override
+	public List<Booking> findByAllFilters(LocalDate dateFrom, LocalDate dateTo, int documentId, int locationId, String statusCode) {
+		return repository.findByAllFilters(dateFrom, dateTo, documentId, locationId, statusCode);
+	}
+
+	@Override
+	public List<Booking> findByLocationAndFilters(LocalDate dateFrom, LocalDate dateTo, int locationId, String statusCode) {
+		return repository.findByLocationAndStatus(dateFrom, dateTo, locationId, statusCode);
+	}
+
+	@Override
+	public List<Booking> findByDocAndFilters(LocalDate dateFrom, LocalDate dateTo, int documentId, String statusCode) {
+		return repository.findByDocAndStatus(dateFrom, dateTo, documentId, statusCode);
+	}	
+	
 }

@@ -42,6 +42,7 @@ import com.service.booking.app.data.service.PassportService;
 import com.service.booking.app.data.service.ProvinceService;
 import com.service.booking.app.data.service.ServFeeService;
 import com.service.booking.app.data.service.ServService;
+import com.service.booking.app.data.service.SmsReportService;
 import com.service.booking.app.data.service.StatusService;
 import com.service.booking.app.http.controller.NotificationManager;
 import com.service.booking.app.utils.AlphanumericGenerator;
@@ -68,7 +69,6 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.textfield.EmailField;
@@ -109,6 +109,7 @@ public class VisaB133View extends VerticalLayout {
 	private final BookingLimitService bookingLimitService;
 	private final PassportService passportService;
 	private final EmailReportService emailSendingReportService;
+	private final SmsReportService smsSendingReportService;
 
 	private NotificationManager notificationManager;
 	
@@ -133,7 +134,7 @@ public class VisaB133View extends VerticalLayout {
 	private ComboBox<Location> location;
 	private ComboBox<CountryCode> countryCode;
 	
-	private ComboBox<Nationality> familyNationality1, familyNationality2, familyNationality3, familyNationality4;
+	private ComboBox<Nationality> familyNationality1, familyNationality2, familyNationality3;
 	
 	private RadioButtonGroup<String> haveEverBeenToMoz;
 	private RadioButtonGroup<String> haveBeenResidentMoz;
@@ -150,9 +151,9 @@ public class VisaB133View extends VerticalLayout {
 	private TextField positionReq;
 	private TextField companyReq;
 	private TextField cityAddress;
-	private TextField familyName1, familyName2, familyName3, familyName4;
-	private TextField familyRelationship1, familyRelationship2, familyRelationship3, familyRelationship4;
-	private TextField familyAddress1, familyAddress2, familyAddress3, familyAddress4;
+	private TextField familyName1, familyName2, familyName3;
+	private TextField familyRelationship1, familyRelationship2, familyRelationship3;
+	private TextField familyAddress1, familyAddress2, familyAddress3;
 	
 	private EmailField emailReq;
 	
@@ -205,7 +206,7 @@ public class VisaB133View extends VerticalLayout {
 			CountryService countryService, NationalityService nationalityService, ProvinceService provinceService,
 			DistrictService districtService, LocationService locationService, CountryCodeService countryCodeService, 
 			GeneralDataService generalDataService, FamilyService familyService, BookingLimitService bookingLimitService,
-			PassportService passportService, EmailReportService emailSendingReportService) {
+			PassportService passportService, EmailReportService emailSendingReportService, SmsReportService smsSendingReportService) {
 
 		this.servService = servService;
 		this.bookingService = bookingService;
@@ -224,6 +225,7 @@ public class VisaB133View extends VerticalLayout {
 		this.bookingLimitService = bookingLimitService;
 		this.passportService = passportService;
 		this.emailSendingReportService = emailSendingReportService;
+		this.smsSendingReportService = smsSendingReportService;
 		
 		setAlignItems(Alignment.CENTER);
 		
@@ -250,6 +252,14 @@ public class VisaB133View extends VerticalLayout {
 		booking = new Booking(); 
 		binder = new BeanValidationBinder<>(Booking.class);
 		binder.bindInstanceFields(this);
+
+		binder.forField(hotelReservation)
+     	.asRequired(Labels.REQUIRED_FIELD)
+     	.bind(Booking::getHotelReservation, Booking::setHotelReservation);
+
+		binder.forField(reasonForTravel)
+     	.asRequired(Labels.REQUIRED_FIELD)
+     	.bind(Booking::getReasonForTravel, Booking::setReasonForTravel);
 	}
 	
 	private Component createHeader() {
@@ -297,8 +307,6 @@ public class VisaB133View extends VerticalLayout {
 		formLayout.add(familyName2, familyNationality2, familyRelationship2, familyAddress2);
 		formLayout.add(hr11);
 		formLayout.add(familyName3, familyNationality3, familyRelationship3, familyAddress3);
-		formLayout.add(hr12);
-		formLayout.add(familyName4, familyNationality4, familyRelationship4, familyAddress4);
 		formLayout.add(hr3);
 		formLayout.add(scheduling);
 		formLayout.add(location, dateToSchedule, reasonForTravel);
@@ -339,7 +347,6 @@ public class VisaB133View extends VerticalLayout {
 		formLayout.setColspan(familyAddress1, 2);
 		formLayout.setColspan(familyAddress2, 2);
 		formLayout.setColspan(familyAddress3, 2);
-		formLayout.setColspan(familyAddress4, 2);
 		formLayout.setColspan(note, 1);
 		formLayout.setColspan(location, 2);
 		formLayout.setColspan(hr2, 4);
@@ -436,7 +443,6 @@ public class VisaB133View extends VerticalLayout {
 	private void createCountryCode() {
 		List<CountryCode> countryCodeItems = countryCodeService.findAll();
 		countryCode.setItems(countryCodeItems);
-		countryCode.setValue(countryCodeItems.get(1));
 		countryCode.setItemLabelGenerator(CountryCode::getName);
 	}
 	
@@ -462,9 +468,6 @@ public class VisaB133View extends VerticalLayout {
 		
 		familyNationality3.setItems(nationalityItems);
 		familyNationality3.setItemLabelGenerator(Nationality::getName);
-		
-		familyNationality4.setItems(nationalityItems);
-		familyNationality4.setItemLabelGenerator(Nationality::getName);
 		
 	}
 	/*
@@ -562,7 +565,7 @@ public class VisaB133View extends VerticalLayout {
 		this.companyReq.setHelperText(Labels.TYPE_YOUR_COMPANY_OR_ORGANIZATION);
 		this.companyReq.setClearButtonVisible(true);
 
-		this.neighborhoodReq = new TextArea(Labels.NEIGHBORHOOD);
+		this.neighborhoodReq = new TextArea(Labels.PERMANENT_RESIDENTIAL_ADDRESS);
 		this.neighborhoodReq.setMaxLength(ngHoodCharLimit);
 		this.neighborhoodReq.setValueChangeMode(ValueChangeMode.EAGER);
 		this.neighborhoodReq.setHelperText("0/"+ngHoodCharLimit+" "+Labels.OPTIONAL);
@@ -754,9 +757,6 @@ public class VisaB133View extends VerticalLayout {
 
         this.familyName3 = new TextField(Labels.FULLNAME);
         this.familyName3.setClearButtonVisible(true);
-
-        this.familyName4 = new TextField(Labels.FULLNAME);
-        this.familyName4.setClearButtonVisible(true);
         
         this.familyRelationship1 = new TextField(Labels.FAMILY_RELATIONSHIP);
         this.familyRelationship1.setClearButtonVisible(true);
@@ -766,9 +766,6 @@ public class VisaB133View extends VerticalLayout {
 
         this.familyRelationship3 = new TextField(Labels.FAMILY_RELATIONSHIP);
         this.familyRelationship3.setClearButtonVisible(true);
-
-        this.familyRelationship4 = new TextField(Labels.FAMILY_RELATIONSHIP);
-        this.familyRelationship4.setClearButtonVisible(true);
         
         this.familyAddress1 = new TextField(Labels.FAMILY_ADDRESS);
         this.familyAddress1.setClearButtonVisible(true);
@@ -778,14 +775,10 @@ public class VisaB133View extends VerticalLayout {
 
         this.familyAddress3 = new TextField(Labels.FAMILY_ADDRESS);
         this.familyAddress3.setClearButtonVisible(true);
-
-        this.familyAddress4 = new TextField(Labels.FAMILY_ADDRESS);
-        this.familyAddress4.setClearButtonVisible(true);
         
         this.familyNationality1 = new ComboBox<Nationality>(Labels.NATIONALITY);
         this.familyNationality2 = new ComboBox<Nationality>(Labels.NATIONALITY);
         this.familyNationality3 = new ComboBox<Nationality>(Labels.NATIONALITY);
-        this.familyNationality4 = new ComboBox<Nationality>(Labels.NATIONALITY);
         
         this.buffer = new MemoryBuffer();
         this.uploadIDDoc = new Upload(buffer);
@@ -851,37 +844,45 @@ public class VisaB133View extends VerticalLayout {
 			 idNumber.setValue(idNumber.getValue().trim());
 			 localOfIssue.setValue(localOfIssue.getValue().trim());
 			 reasonForTravel.setValue(reasonForTravel.getValue().trim());
-			 binder.writeBean(booking);
 			 
 			 this.idNumber.isRequiredIndicatorVisible();
 			 this.idNumber.setInvalid(true);
-			 
-			 confirmDialog = new ConfirmDialog();
-			 confirmDialog.setCancelable(true);
-			 confirmDialog.setCancelText(Constants.CANCEL);
-			 confirmDialog.setCancelButtonTheme("error primary");
-			 confirmDialog.setConfirmText(Labels.CONFIRM_BOOKING_LATER_BUTTON);
-			 confirmDialog.setConfirmButton(Labels.CONFIRM_BOOKING_BUTTON, e -> saveBooking());
-	         
-			 confirmDialog.setHeader(Labels.CONFIRM_BOOKING);
-			 confirmDialog.add(new H5(Labels.BOOKING_CONFIRMATION+" "+Labels.DOCUMENT_TYPE_VISA_B133));
-			 
-			 UnorderedList unorderedList = new UnorderedList();
 
-		        // Create and add list items to the UnorderedList
-		        ListItem item1 = new ListItem(Labels.NAME+": "+nameReq.getValue()+" "+surnameReq.getValue());
-		        ListItem item2 = new ListItem(Labels.DOCUMENT_TYPE+": "+documentType.getValue().getName());
-		        ListItem item3 = new ListItem(Labels.SCHEDULED_DATE+": "+dateToSchedule.getValue());
-		        ListItem item4 = new ListItem(Labels.SELECTED_LOCATION+": "+location.getValue().getName());
+			 if(binder.isValid()) {
+
+				 binder.writeBean(booking);
+				 
+				 confirmDialog = new ConfirmDialog();
+				 confirmDialog.setCancelable(true);
+				 confirmDialog.setCancelText(Constants.CANCEL);
+				 confirmDialog.setCancelButtonTheme("error primary");
+				 confirmDialog.setConfirmText(Labels.CONFIRM_BOOKING_LATER_BUTTON);
+				 confirmDialog.setConfirmButton(Labels.CONFIRM_BOOKING_BUTTON, e -> saveBooking());
+		         
+				 confirmDialog.setHeader(Labels.CONFIRM_BOOKING);
+				 confirmDialog.add(new H5(Labels.BOOKING_CONFIRMATION+" "+Labels.DOCUMENT_TYPE_VISA_B133));
+				 
+				 UnorderedList unorderedList = new UnorderedList();
+	
+			        // Create and add list items to the UnorderedList
+			        ListItem item1 = new ListItem(Labels.NAME+": "+nameReq.getValue()+" "+surnameReq.getValue());
+			        ListItem item2 = new ListItem(Labels.DOCUMENT_TYPE+": "+documentType.getValue().getName());
+			        ListItem item3 = new ListItem(Labels.SCHEDULED_DATE+": "+dateToSchedule.getValue());
+			        ListItem item4 = new ListItem(Labels.SELECTED_LOCATION+": "+location.getValue().getName());
+			        
+			        unorderedList.add(item1, item2, item3, item4);
+			        confirmDialog.add(unorderedList);
+				 
+				 confirmDialog.setConfirmButtonTheme("success primary");
+		             
+				 confirmDialog.setWidth("50%");
 		        
-		        unorderedList.add(item1, item2, item3, item4);
-		        confirmDialog.add(unorderedList);
-			 
-			 confirmDialog.setConfirmButtonTheme("success primary");
-	             
-			 confirmDialog.setWidth("50%");
-	        
-			 confirmDialog.open();
+				 confirmDialog.open();
+			 }else {
+				 	Notification notification = Notification.show(Labels.FILL_IN_ALL_REQUIRED_FIELDS, 7000, Position.TOP_CENTER); 
+					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					binder.writeBean(booking);
+			 }
 		 } catch (Exception e) {
 			 if(binder.isValid()) {
 					Notification notification = Notification.show(Labels.SAVED_BOOKING_ERROR); 
@@ -987,24 +988,10 @@ public class VisaB133View extends VerticalLayout {
 						familyService.save(createFamily(booking, familyName3.getValue(), familyNationality3.getValue(), familyRelationship3.getValue(), 
 								familyAddress3.getValue(), booking.getNameReq()+" "+booking.getSurnameReq()));
 					}
-					if(familyName4.getValue() != null  && familyNationality4.getValue() != null) {
-						familyService.save(createFamily(booking, familyName4.getValue(), familyNationality4.getValue(), familyRelationship4.getValue(), 
-								familyAddress4.getValue(), booking.getNameReq()+" "+booking.getSurnameReq()));
-					}
 					
-					if(booking.getEmailReq() != null) {
-						notificationManager = new NotificationManager(emailSendingReportService);
-						
-						String htmlBody = Notifications.EMAIL_HTML_BODY_BOOKING;
-						htmlBody = htmlBody.replace("#fullname", booking.getNameReq().concat(" ").concat(booking.getSurnameReq()))
-								.replace("#doc", booking.getService().getName())
-								.replace("#code", booking.getBookingId()).replace("#date", booking.getDateToScheduleFormated())
-								.replace("#local", booking.getLocation().getName());
-						
-						notificationManager.sendHtmlEmailNotification(booking.getEmailReq(), "", "", Notifications.EMAIL_SUBJECT_BOOKING, htmlBody, booking);
-					}
+					notifyAfterBooking();
 					
-					navigateToView("/agendar");
+					navigateToView("/");
 					Notification notification = Notification.show(Labels.SAVED_BOOKING_SUCCESSFULLY+" "+booking.getBookingId(), 10000, Position.TOP_CENTER); 
 					notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 				}
@@ -1038,6 +1025,27 @@ public class VisaB133View extends VerticalLayout {
 			 return true;
 		 
 		 return false;
+	 }
+	 
+	 private void notifyAfterBooking() {
+		 
+		 notificationManager = new NotificationManager(emailSendingReportService, smsSendingReportService);
+		 String firstNameReq = booking.getNameReq().trim().contains(" ") ? booking.getNameReq().trim().split(" ")[0] : booking.getNameReq();
+		 
+		 notificationManager.sendSMSBookingNotification(booking, Notifications.SMS_BOOKING_SUCCESS.replace("#name", firstNameReq.concat(" "+booking.getSurnameReq()))
+				 .replace("#code", booking.getBookingId()).replace("#doc", Labels.VISA).replace("#local", booking.getLocation().getName())
+				 .replace("#date", booking.getDateToScheduleFormated()));
+			
+			if(booking.getEmailReq() != null && booking.getEmailReq().trim() != "") {
+				
+				String htmlBody = Notifications.EMAIL_HTML_BODY_BOOKING;
+				htmlBody = htmlBody.replace("#fullname", booking.getNameReq().concat(" ").concat(booking.getSurnameReq()))
+						.replace("#doc", booking.getService().getName())
+						.replace("#code", booking.getBookingId()).replace("#date", booking.getDateToScheduleFormated())
+						.replace("#local", booking.getLocation().getName());
+				
+				notificationManager.sendHtmlEmailNotification(booking.getEmailReq(), "", "", Notifications.EMAIL_SUBJECT_BOOKING, htmlBody, booking);
+			}
 	 }
 	 
 	 private LocalDate getNexWorkingDay(LocalDate date) {

@@ -18,4 +18,7 @@ public interface ModalityRepository extends JpaRepository<Modality,Integer>{
 	
 	@Query("SELECT m FROM Modality m WHERE m.category = :category and m.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
     List<Modality> findModalityByCategoryAndStatus(@Param("category") String category, @Param("statusCode") String statusCode);
+	
+	@Query("SELECT m FROM Modality m WHERE m.name in ('Normal','Normale') and m.status.statusId = (SELECT s.statusId FROM Status s WHERE s.code = :statusCode)")
+    List<Modality> findVisaExtendModalityByStatus(@Param("statusCode") String statusCode);
 }

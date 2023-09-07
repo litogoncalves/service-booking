@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.service.booking.app.constants.Constants;
 import com.service.booking.app.constants.Labels;
@@ -38,6 +39,7 @@ import com.service.booking.app.data.service.NationalityService;
 import com.service.booking.app.data.service.ProvinceService;
 import com.service.booking.app.data.service.ServFeeService;
 import com.service.booking.app.data.service.ServService;
+import com.service.booking.app.data.service.SmsReportService;
 import com.service.booking.app.data.service.StatusService;
 import com.service.booking.app.http.controller.NotificationManager;
 import com.service.booking.app.utils.AlphanumericGenerator;
@@ -104,6 +106,7 @@ public class CertificateA3View extends VerticalLayout{
 	private final GeneralDataService generalDataService;
 	private final BookingLimitService bookingLimitService;
 	private final EmailReportService emailSendingReportService;
+	private final SmsReportService smsSendingReportService;
 	
 	private NotificationManager notificationManager;
 	
@@ -173,7 +176,8 @@ public class CertificateA3View extends VerticalLayout{
 			StatusService statusService, DocumentService documentService, ModalityService modalityService, ServFeeService servFeeService,
 			CountryService countryService, NationalityService nationalityService, ProvinceService provinceService,
 			DistrictService districtService, LocationService locationService, CountryCodeService countryCodeService,
-			GeneralDataService generalDataService, BookingLimitService bookingLimitService, EmailReportService emailSendingReportService) {
+			GeneralDataService generalDataService, BookingLimitService bookingLimitService, EmailReportService emailSendingReportService,
+			SmsReportService smsSendingReportService) {
 
 		this.servService = servService;
 		this.bookingService = bookingService;
@@ -191,6 +195,7 @@ public class CertificateA3View extends VerticalLayout{
 		this.generalDataService = generalDataService;
 		this.bookingLimitService = bookingLimitService;
 		this.emailSendingReportService = emailSendingReportService;
+		this.smsSendingReportService = smsSendingReportService;
 		
 		setAlignItems(Alignment.CENTER);
 		
@@ -224,6 +229,7 @@ public class CertificateA3View extends VerticalLayout{
 		 binder.forField(localOfIssue)
 		 .asRequired(Labels.REQUIRED_FIELD)
 		 .bind(Booking::getLocalOfIssue, Booking::setLocalOfIssue);
+		 
 	}
 	
 	private Component createHeader() {
@@ -360,8 +366,13 @@ public class CertificateA3View extends VerticalLayout{
 	
 	private void createCountryCode() {
 		List<CountryCode> countryCodeItems = countryCodeService.findAll();
+		
+		CountryCode countryCodeMoz = countryCodeItems.stream()
+                .filter(obj -> obj.getCode().equals(Constants.COUNTRY_CODE_MZ))
+                .collect(Collectors.toList()).get(0);
+		
 		countryCode.setItems(countryCodeItems);
-		countryCode.setValue(countryCodeItems.get(1));
+		countryCode.setValue(countryCodeMoz);
 		countryCode.setItemLabelGenerator(CountryCode::getName);
 	}
 	
@@ -623,38 +634,51 @@ public class CertificateA3View extends VerticalLayout{
 			 idNumber.setValue(idNumber.getValue().trim());
 			 localOfIssue.setValue(localOfIssue.getValue().trim());
 			 reasonForTravel.setValue(reasonForTravel.getValue().trim());
-			 binder.writeBean(booking);
-			 
 			 this.idNumber.isRequiredIndicatorVisible();
 			 this.idNumber.setInvalid(true);
-			 this.idNumber.addClientValidatedEventListener(e -> {});
 			 
-			 confirmDialog = new ConfirmDialog();
-			 confirmDialog.setCancelable(true);
-			 confirmDialog.setCancelText(Constants.CANCEL);
-			 confirmDialog.setCancelButtonTheme("error primary");
-			 confirmDialog.setConfirmText(Labels.CONFIRM_BOOKING_LATER_BUTTON);
-			 confirmDialog.setConfirmButton(Labels.CONFIRM_BOOKING_BUTTON, e -> saveBooking());
-	         
-			 confirmDialog.setHeader(Labels.CONFIRM_BOOKING);
-			 confirmDialog.add(new H5(Labels.BOOKING_CONFIRMATION+" "+Labels.DOCUMENT_TYPE_EMERGENCY_CERTIFICATE_A3));
-			 
-			 UnorderedList unorderedList = new UnorderedList();
+			 if(binder.isValid()) {
 
-		        // Create and add list items to the UnorderedList
-		        ListItem item1 = new ListItem(Labels.NAME+": "+nameReq.getValue()+" "+surnameReq.getValue());
-		        ListItem item2 = new ListItem(Labels.DOCUMENT_TYPE+": "+documentType.getValue().getName());
-		        ListItem item3 = new ListItem(Labels.SCHEDULED_DATE+": "+dateToSchedule.getValue());
-		        ListItem item4 = new ListItem(Labels.SELECTED_LOCATION+": "+location.getValue().getName());
+				 binder.writeBean(booking);
+				 confirmDialog = new ConfirmDialog();
+				 confirmDialog.setCancelable(true);
+				 confirmDialog.setCancelText(Constants.CANCEL);
+				 confirmDialog.setCancelButtonTheme("error primary");
+				 confirmDialog.setConfirmText(Labels.CONFIRM_BOOKING_LATER_BUTTON);
+				 confirmDialog.setConfirmButton(Labels.CONFIRM_BOOKING_BUTTON, e -> saveBooking());
+		         
+				 confirmDialog.setHeader(Labels.CONFIRM_BOOKING);
+				 //confirmDialog.add(new H4(Labels.BOOKING_CONFIRMATION), new Paragraph());
+				 confirmDialog.add(new H5(Labels.BOOKING_CONFIRMATION+" "+Labels.DOCUMENT_TYPE_EMERGENCY_CERTIFICATE_A3));
+				 
+				 UnorderedList unorderedList = new UnorderedList();
+	
+			        // Create and add list items to the UnorderedList
+			        ListItem item1 = new ListItem(Labels.NAME+": "+nameReq.getValue()+" "+surnameReq.getValue());
+			        ListItem item2 = new ListItem(Labels.DOCUMENT_TYPE+": "+documentType.getValue().getName());
+			        ListItem item3 = new ListItem(Labels.SCHEDULED_DATE+": "+dateToSchedule.getValue());
+			        ListItem item4 = new ListItem(Labels.SELECTED_LOCATION+": "+location.getValue().getName());
+			        
+			        unorderedList.add(item1, item2, item3, item4);
+			        confirmDialog.add(unorderedList);
+				/* confirmDialog.add(new Paragraph("Nome: "+nameReq.getValue()+" "+surnameReq.getValue()));
+				 confirmDialog.add(new Paragraph("Tipo de Documento: "+documentType.getValue().getName()));
+				 confirmDialog.add(new Paragraph("Data Marcada: "+dateToSchedule.getValue()));
+				 confirmDialog.add(new Paragraph("Local: "+location.getValue().getName()));*/
+				 
+				 confirmDialog.setConfirmButtonTheme("success primary");
+		             
+		             //dialog.addConfirmListener(event -> navigateToView("/passaportA11"));
+		             //button = new Button("Anular");
 		        
-		        unorderedList.add(item1, item2, item3, item4);
-		        confirmDialog.add(unorderedList);
-			 
-			 confirmDialog.setConfirmButtonTheme("success primary");
-	             
-			 confirmDialog.setWidth("50%");
-	        
-			 confirmDialog.open();
+				 confirmDialog.setWidth("50%");
+		        
+				 confirmDialog.open();
+			 }else {
+				 	Notification notification = Notification.show(Labels.FILL_IN_ALL_REQUIRED_FIELDS, 7000, Position.TOP_CENTER); 
+					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					binder.writeBean(booking);
+			 }
 		 } catch (Exception e) {
 			 if(binder.isValid()) {
 					Notification notification = Notification.show(Labels.SAVED_BOOKING_ERROR); 
@@ -663,6 +687,7 @@ public class CertificateA3View extends VerticalLayout{
 					
 					e.printStackTrace();
 				}
+			
 		}
 	 }
 
@@ -748,19 +773,9 @@ public class CertificateA3View extends VerticalLayout{
 					identityDocService.save(identityDoc);
 					bookingService.save(booking);
 					
-					if(booking.getEmailReq() != null) {
-						notificationManager = new NotificationManager(emailSendingReportService);
-						
-						String htmlBody = Notifications.EMAIL_HTML_BODY_BOOKING;
-						htmlBody = htmlBody.replace("#fullname", booking.getNameReq().concat(" ").concat(booking.getSurnameReq()))
-								.replace("#doc", booking.getService().getName())
-								.replace("#code", booking.getBookingId()).replace("#date", booking.getDateToScheduleFormated())
-								.replace("#local", booking.getLocation().getName());
-						
-						notificationManager.sendHtmlEmailNotification(booking.getEmailReq(), "", "", Notifications.EMAIL_SUBJECT_BOOKING, htmlBody, booking);
-					}
+					notifyAfterBooking();
 					
-					navigateToView("/agendar");
+					navigateToView("/");
 					Notification notification = Notification.show(Labels.SAVED_BOOKING_SUCCESSFULLY+" "+booking.getBookingId(), 10000, Position.TOP_CENTER); 
 					notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 				}
@@ -790,6 +805,27 @@ public class CertificateA3View extends VerticalLayout{
 			 return true;
 		 
 		 return false;
+	 }
+	 
+	 private void notifyAfterBooking() {
+		 
+		 notificationManager = new NotificationManager(emailSendingReportService, smsSendingReportService);
+		 String firstNameReq = booking.getNameReq().trim().contains(" ") ? booking.getNameReq().trim().split(" ")[0] : booking.getNameReq();
+		 
+		 notificationManager.sendSMSBookingNotification(booking, Notifications.SMS_BOOKING_SUCCESS.replace("#name", firstNameReq.concat(" "+booking.getSurnameReq()))
+				 .replace("#code", booking.getBookingId()).replace("#doc", Labels.EMERGENCY_CERTIFICATE).replace("#local", booking.getLocation().getName())
+				 .replace("#date", booking.getDateToScheduleFormated()));
+			
+			if(booking.getEmailReq() != null && booking.getEmailReq().trim() != "") {
+				
+				String htmlBody = Notifications.EMAIL_HTML_BODY_BOOKING;
+				htmlBody = htmlBody.replace("#fullname", booking.getNameReq().concat(" ").concat(booking.getSurnameReq()))
+						.replace("#doc", booking.getService().getName())
+						.replace("#code", booking.getBookingId()).replace("#date", booking.getDateToScheduleFormated())
+						.replace("#local", booking.getLocation().getName());
+				
+				notificationManager.sendHtmlEmailNotification(booking.getEmailReq(), "", "", Notifications.EMAIL_SUBJECT_BOOKING, htmlBody, booking);
+			}
 	 }
 	 
 	 private LocalDate getNexWorkingDay(LocalDate date) {

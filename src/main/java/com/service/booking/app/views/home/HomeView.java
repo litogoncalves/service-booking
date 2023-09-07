@@ -14,14 +14,12 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 
 @PageTitle("Home | SIGAV - Sistema de Gestão de Agendamentos e Validações")
-@Route(value = "", layout = MainLayout.class)
+@Route(value = "home-not-in-use", layout = MainLayout.class)
 @AnonymousAllowed
 public class HomeView extends VerticalLayout {
 
     public HomeView() {
         setSpacing(false);
-        //add(createHeader());
-        
         Image img = new Image("images/empty-plant.png", "placeholder plant");
         img.setWidth("200px");
         add(img);
